@@ -6,6 +6,7 @@ D:\3.Source\FileProcessor\WMass\obj\Debug\net10.0\WMass.GeneratedMSBuildEditorCo
 D:\3.Source\FileProcessor\WMass\obj\Debug\net10.0\WMass.AssemblyInfoInputs.cache
 D:\3.Source\FileProcessor\WMass\obj\Debug\net10.0\WMass.AssemblyInfo.cs
 D:\3.Source\FileProcessor\WMass\obj\Debug\net10.0\WMass.csproj.CoreCompileInputs.cache
+D:\3.Source\FileProcessor\WMass\obj\Debug\net10.0\WMass.sourcelink.json
 D:\3.Source\FileProcessor\WMass\obj\Debug\net10.0\WMass.dll
 D:\3.Source\FileProcessor\WMass\obj\Debug\net10.0\refint\WMass.dll
 D:\3.Source\FileProcessor\WMass\obj\Debug\net10.0\WMass.pdb

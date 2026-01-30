@@ -1,8 +1,8 @@
 ﻿using FileProcessor.Engine.Runtime;
 using FileProcessor.Engine.Services;
-using FileProcessor.Core.Models;
+using System.Text;
 
-System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
 // --- 路径配置 ---
 string pluginDir = Path.Combine(AppContext.BaseDirectory, "Plugins");

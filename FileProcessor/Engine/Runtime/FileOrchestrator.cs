@@ -1,9 +1,7 @@
 ﻿using FileProcessor.Core.Contracts;
 using FileProcessor.Core.Models;
 using FileProcessor.Engine.Registration;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Text.RegularExpressions;
 
 namespace FileProcessor.Engine.Runtime
 {
@@ -20,37 +18,50 @@ namespace FileProcessor.Engine.Runtime
 
         public FileSnapshot? ProcessFile(string filePath)
         {
-            // 1. 匹配模板 (高内聚：由文件名决定解析方式)
             var fileName = Path.GetFileName(filePath);
-            var template = _templates.FirstOrDefault(t =>
-                System.Text.RegularExpressions.Regex.IsMatch(fileName, t.FileNamePattern));
+            //Console.WriteLine($"[Debug] 处理文件: '{fileName}'");
 
-            if (template == null) return null;
+            //// 打印可用模板，便于调试
+            //foreach (var t in _templates)
+            //{
+            //    try
+            //    {
+            //        Console.WriteLine($"[Debug] 可用模板模式: '{t.FileNamePattern}'");
+            //    }
+            //    catch { }
+            //}
+
+            // 使用不区分大小写的匹配，避免大小写导致不能匹配
+            var template = _templates.FirstOrDefault(t =>
+                Regex.IsMatch(fileName, t.FileNamePattern, RegexOptions.IgnoreCase));
+
+            if (template == null)
+            {
+                Console.WriteLine($"[Debug] 未匹配到模板，跳过解析。请确认文件名是否满足模板模式（区分大小写可能导致匹配失败）。");
+                return null;
+            }
 
             // 2. 解析块
             var rawBlocks = TextParser.Parse(filePath, template);
             var processedData = new Dictionary<string, object>();
 
-
-            // 3. 分发处理 (低耦合：跨文件共用处理器)
+            // 3. 分发处理
             foreach (var rawBlock in rawBlocks)
             {
                 var processor = _processorRegistry.FindProcessor(rawBlock.BlockName);
                 if (processor != null)
                 {
                     var result = processor.Process(rawBlock);
-                    // 存储处理后的数据，Key 使用块名（或根据需求增加唯一性）
                     processedData[rawBlock.BlockName] = result;
                 }
             }
-
 
             // 4. 生成快照
             return new FileSnapshot(
                 Guid.NewGuid(),
                 fileName,
                 DateTime.Now,
-                new FileInfo(filePath).Length, // 简化版 Hash，实际建议用 MD5
+                new FileInfo(filePath).Length,
                 processedData
             );
         }

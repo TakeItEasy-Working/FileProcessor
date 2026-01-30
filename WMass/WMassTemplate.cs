@@ -1,6 +1,5 @@
-﻿using FileProcessor.Core.Contracts;
-using FileProcessor.Core.Attributes;
-using System;
+﻿using FileProcessor.Core.Attributes;
+using FileProcessor.Core.Contracts;
 using System.Text.RegularExpressions;
 
 namespace WMass.Plugin;

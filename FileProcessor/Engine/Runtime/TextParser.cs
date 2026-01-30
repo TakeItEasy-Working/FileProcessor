@@ -1,7 +1,6 @@
 ﻿using FileProcessor.Core.Contracts;
 using FileProcessor.Core.Models;
-using System.Collections.Generic;
-using System.IO;
+using System.Text;
 
 namespace FileProcessor.Engine.Runtime
 {
@@ -9,8 +8,12 @@ namespace FileProcessor.Engine.Runtime
     {
         public static IEnumerable<RawDataBlock> Parse(string filePath, IFileTemplate template)
         {
-            Console.WriteLine("parsing...");
-            using var reader = new StreamReader(filePath);
+            Console.WriteLine("[通知] 开始文件解析...");
+
+            using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            Encoding encoding = DetectEncoding(fs);
+
+            using var reader = new StreamReader(fs, encoding, detectEncodingFromByteOrderMarks: false);
             string? currentLine;
             string? nextLine = reader.ReadLine();
 
@@ -21,7 +24,6 @@ namespace FileProcessor.Engine.Runtime
 
             while (nextLine != null)
             {
-                Console.WriteLine(nextLine);
                 currentLine = nextLine;
                 nextLine = reader.ReadLine();
                 currentLineNumber++;
@@ -34,7 +36,6 @@ namespace FileProcessor.Engine.Runtime
 
                 if (newBlockName != null)
                 {
-                    Console.WriteLine(newBlockName);
                     // 提交旧块
                     if (currentBlockName != null && lineBuffer.Count > 0)
                     {
@@ -64,6 +65,32 @@ namespace FileProcessor.Engine.Runtime
             {
                 yield return new RawDataBlock(currentBlockName, lineBuffer.ToArray(), startLineNumber, filePath);
             }
+        }
+
+        private static Encoding DetectEncoding(FileStream fs)
+        {
+            // 读取前 4 字节检查 BOM，然后回到流起始位置
+            byte[] bom = new byte[4];
+            int n = fs.Read(bom, 0, 4);
+            fs.Seek(0, SeekOrigin.Begin);
+
+            // UTF-8 BOM EF BB BF
+            if (n >= 3 && bom[0] == 0xEF && bom[1] == 0xBB && bom[2] == 0xBF)
+                return Encoding.UTF8;
+
+            // UTF-16 LE BOM FF FE
+            if (n >= 2 && bom[0] == 0xFF && bom[1] == 0xFE)
+                return Encoding.Unicode;
+
+            // UTF-16 BE BOM FE FF
+            if (n >= 2 && bom[0] == 0xFE && bom[1] == 0xFF)
+                return Encoding.BigEndianUnicode;
+
+            // UTF-32 LE/BE 等可按需扩展...
+
+            // 无 BOM：大多数中文 Windows 文本是 GBK/GB18030（cp936/54936）
+            // 使用 GB18030 能兼容更多中文编码情况
+            return Encoding.GetEncoding("GB18030");
         }
     }
 }

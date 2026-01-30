@@ -10,6 +10,7 @@ D:\3.Source\FileProcessor\ConsoleTest\obj\Debug\net10.0\ConsoleTest.GeneratedMSB
 D:\3.Source\FileProcessor\ConsoleTest\obj\Debug\net10.0\ConsoleTest.AssemblyInfoInputs.cache
 D:\3.Source\FileProcessor\ConsoleTest\obj\Debug\net10.0\ConsoleTest.AssemblyInfo.cs
 D:\3.Source\FileProcessor\ConsoleTest\obj\Debug\net10.0\ConsoleTest.csproj.CoreCompileInputs.cache
+D:\3.Source\FileProcessor\ConsoleTest\obj\Debug\net10.0\ConsoleTest.sourcelink.json
 D:\3.Source\FileProcessor\ConsoleTest\obj\Debug\net10.0\ConsoleT.0EB5926D.Up2Date
 D:\3.Source\FileProcessor\ConsoleTest\obj\Debug\net10.0\ConsoleTest.dll
 D:\3.Source\FileProcessor\ConsoleTest\obj\Debug\net10.0\refint\ConsoleTest.dll

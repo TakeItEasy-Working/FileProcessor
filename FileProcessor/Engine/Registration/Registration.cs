@@ -1,8 +1,5 @@
 ﻿using FileProcessor.Core.Contracts;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
 
 namespace FileProcessor.Engine.Registration
 {

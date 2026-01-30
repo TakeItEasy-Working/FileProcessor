@@ -5,6 +5,7 @@ D:\3.Source\FileProcessor\FileProcessor\obj\Debug\net10.0\FileProcessor.Generate
 D:\3.Source\FileProcessor\FileProcessor\obj\Debug\net10.0\FileProcessor.AssemblyInfoInputs.cache
 D:\3.Source\FileProcessor\FileProcessor\obj\Debug\net10.0\FileProcessor.AssemblyInfo.cs
 D:\3.Source\FileProcessor\FileProcessor\obj\Debug\net10.0\FileProcessor.csproj.CoreCompileInputs.cache
+D:\3.Source\FileProcessor\FileProcessor\obj\Debug\net10.0\FileProcessor.sourcelink.json
 D:\3.Source\FileProcessor\FileProcessor\obj\Debug\net10.0\FileProcessor.dll
 D:\3.Source\FileProcessor\FileProcessor\obj\Debug\net10.0\refint\FileProcessor.dll
 D:\3.Source\FileProcessor\FileProcessor\obj\Debug\net10.0\FileProcessor.pdb
