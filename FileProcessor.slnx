@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="ConsoleTest/ConsoleTest.csproj" Id="c4d80c35-4d20-4642-8b6b-7288899bb43e">
+    <BuildDependency Project="WMass/WMass.csproj" />
+  </Project>
+  <Project Path="FileProcessor/FileProcessor.csproj" />
+  <Project Path="WMass/WMass.csproj" Id="e98028e9-2382-4450-a2f1-c276184c2dc0" />
+</Solution>

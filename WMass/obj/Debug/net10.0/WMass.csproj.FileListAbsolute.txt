@@ -1,0 +1,12 @@
+D:\3.Source\FileProcessor\WMass\bin\Debug\net10.0\WMass.deps.json
+D:\3.Source\FileProcessor\WMass\bin\Debug\net10.0\WMass.dll
+D:\3.Source\FileProcessor\WMass\bin\Debug\net10.0\WMass.pdb
+D:\3.Source\FileProcessor\WMass\obj\Debug\net10.0\WMass.csproj.AssemblyReference.cache
+D:\3.Source\FileProcessor\WMass\obj\Debug\net10.0\WMass.GeneratedMSBuildEditorConfig.editorconfig
+D:\3.Source\FileProcessor\WMass\obj\Debug\net10.0\WMass.AssemblyInfoInputs.cache
+D:\3.Source\FileProcessor\WMass\obj\Debug\net10.0\WMass.AssemblyInfo.cs
+D:\3.Source\FileProcessor\WMass\obj\Debug\net10.0\WMass.csproj.CoreCompileInputs.cache
+D:\3.Source\FileProcessor\WMass\obj\Debug\net10.0\WMass.dll
+D:\3.Source\FileProcessor\WMass\obj\Debug\net10.0\refint\WMass.dll
+D:\3.Source\FileProcessor\WMass\obj\Debug\net10.0\WMass.pdb
+D:\3.Source\FileProcessor\WMass\obj\Debug\net10.0\ref\WMass.dll
