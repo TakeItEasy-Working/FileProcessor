@@ -1,28 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using FileProcessor.Core.Models;
 
 namespace FileProcessor.Core.Contracts
 {
+    /// <summary>
+    /// 插件标准化接口
+    /// </summary>
     public interface IFileTemplate
     {
+        // 匹配的文件名正则模式
         string FileNamePattern { get; }
 
-        /// <summary>
-        /// 识别块名：只在非忽略行上运行
-        /// </summary>
-        string? IdentifyBlockName(string currentLine, string nextLine);
-
-        /// <summary>
-        /// 定义哪些行不参与边界识别，也不进入数据块内容
-        /// 例如：空白行、全局注释、页码标记
-        /// </summary>
-        bool IsIgnorableLine(string line);
-
-        /// <summary>
-        /// 定义块的结束标志（可选）
-        /// 如果返回 null，则默认下一个块的开始即为当前块的结束
-        /// </summary>
-        bool IsEndOfBlock(string line) => false;
+        // 解析入口：负责从路径直接输出拆分后的原始数据块
+        IEnumerable<RawDataBlock> Parse(string filePath);
     }
 }

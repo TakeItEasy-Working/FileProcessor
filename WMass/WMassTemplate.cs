@@ -1,51 +1,77 @@
 ﻿using FileProcessor.Core.Attributes;
-using FileProcessor.Core.Contracts;
-using System.Text.RegularExpressions;
+using FileProcessor.Core.Infrastructure;
+using FileProcessor.Core.Models;
 
-namespace WMass.Plugin;
-
-[FileProcessorPlugin]
-public class WMassTemplate : IFileTemplate
+namespace WMass.Plugin
 {
-    public string FileNamePattern => @"wmass.out";
-
-    // 预编译一个简单的正则，用来判断“这是否是数据行”
-    // 如果一行以数字开头，或者包含 "Floor No"，那它绝不是标题
-    private static readonly Regex DataLinePattern = new Regex(@"^(\d|Floor|Tower|----)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-    public string? IdentifyBlockName(string currentLine, string nextLine)
+    [FileProcessorPlugin]
+    public class WMassTemplate : BaseFileTemplate
     {
-        // 只有当当前行包含星号时，才尝试识别
-        if (currentLine.Contains("****"))
+        public override string FileNamePattern => @"wmass.out";
+
+        /// <summary>
+        /// 增强版拆分逻辑：支持 ****、==== 等多种形式的标题包围线
+        /// </summary>
+        protected override IEnumerable<RawDataBlock> SplitBlocks(List<string> lines, string filePath)
         {
-            string candidate = nextLine?.Trim() ?? "";
+            string currentTitle = "文件头部";
+            List<string> currentBlockLines = new List<string>();
+            int startLineNumber = 1;
 
-            // --- 【核心修复逻辑】 ---
+            // 定义可能的边界特征：星号线或等号线
+            string[] markers = { "****", "====" };
 
-            // 1. 如果下一行是空的，或者是另一行分割线，忽略
-            if (string.IsNullOrWhiteSpace(candidate)) return null;
-            if (candidate.Contains("****")) return null;
-
-            // 2. 【关键】如果下一行看起来像数据（比如包含 Floor No），说明当前行是标题下方的底线
-            // 这时返回 null，保持当前块继续收集数据
-            if (DataLinePattern.IsMatch(candidate))
+            for (int i = 0; i < lines.Count; i++)
             {
-                return null;
+                string line = lines[i];
+
+                // 识别任何一种边界特征线
+                if (markers.Any(m => line.Contains(m)))
+                {
+                    int headerEnd = i;
+                    List<string> headerLines = new List<string>();
+
+                    // 向下嗅探：直到遇到下一行特征线（无论它是星号还是等号）
+                    // 逻辑：只要下一行不包含任何标记，且不是文件末尾，就视作标题内容
+                    while (headerEnd + 1 < lines.Count && !markers.Any(m => lines[headerEnd + 1].Contains(m)))
+                    {
+                        headerEnd++;
+                        string candidate = lines[headerEnd].Trim();
+                        if (!string.IsNullOrWhiteSpace(candidate))
+                            headerLines.Add(candidate);
+                    }
+
+                    // 如果在两条特征线之间抓到了文字，说明这是一个新块的开始
+                    if (headerLines.Count > 0)
+                    {
+                        // 1. 提交上一个块
+                        if (currentBlockLines.Count > 0)
+                        {
+                            yield return new RawDataBlock(currentTitle, currentBlockLines.ToArray(), startLineNumber, filePath);
+                        }
+
+                        // 2. 提取新标题（如果有两行标题，通常取第一行作为 Key）
+                        currentTitle = headerLines[0];
+                        currentBlockLines = new List<string>();
+
+                        // 数据起始行应该是标题区结束后的那一行
+                        startLineNumber = headerEnd + 2;
+
+                        // 3. 跳过整个标题包围区
+                        i = headerEnd + 1;
+                        continue;
+                    }
+                }
+
+                // 普通数据行收集
+                currentBlockLines.Add(line);
             }
 
-            // 3. 通过所有检查，认为这是一行真正的标题
-            return candidate;
+            // 提交最后一个残留块
+            if (currentBlockLines.Count > 0)
+            {
+                yield return new RawDataBlock(currentTitle, currentBlockLines.ToArray(), startLineNumber, filePath);
+            }
         }
-        return null;
-    }
-
-    public bool IsIgnorableLine(string line)
-    {
-        // 只忽略空行和减号分割线
-        // 注意：千万不要在这里忽略 "****"，否则 IdentifyBlockName 永远不会触发
-        if (string.IsNullOrWhiteSpace(line)) return true;
-        if (line.Contains("----")) return true;
-
-        return false;
     }
 }

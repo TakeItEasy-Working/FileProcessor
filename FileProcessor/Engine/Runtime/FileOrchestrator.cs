@@ -19,17 +19,6 @@ namespace FileProcessor.Engine.Runtime
         public FileSnapshot? ProcessFile(string filePath)
         {
             var fileName = Path.GetFileName(filePath);
-            //Console.WriteLine($"[Debug] 处理文件: '{fileName}'");
-
-            //// 打印可用模板，便于调试
-            //foreach (var t in _templates)
-            //{
-            //    try
-            //    {
-            //        Console.WriteLine($"[Debug] 可用模板模式: '{t.FileNamePattern}'");
-            //    }
-            //    catch { }
-            //}
 
             // 使用不区分大小写的匹配，避免大小写导致不能匹配
             var template = _templates.FirstOrDefault(t =>
@@ -42,7 +31,7 @@ namespace FileProcessor.Engine.Runtime
             }
 
             // 2. 解析块
-            var rawBlocks = TextParser.Parse(filePath, template);
+            var rawBlocks = template.Parse(filePath).ToList();
             var processedData = new Dictionary<string, object>();
 
             // 3. 分发处理

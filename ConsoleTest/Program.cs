@@ -1,6 +1,7 @@
 ﻿using FileProcessor.Engine.Runtime;
 using FileProcessor.Engine.Services;
 using System.Text;
+using System.Collections; // 用于遍历列表
 
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
@@ -23,11 +24,9 @@ var orchestrator = new FileOrchestrator(templates, registry);
 var snapshotManager = new SnapshotManager();
 
 // 3. 启动监控服务
-// 注意：此时 Monitor 内部已经修改，支持 OnSnapshotCreated 事件
 using var monitor = new FileMonitorService(watchDir, orchestrator);
 
-// 【核心修复】：订阅事件。当 Monitor 解析完文件得到 Snapshot 时，自动塞进存储器
-// 监听事件
+// 订阅事件：解析完成后自动入库
 monitor.OnSnapshotCreated += (snapshot) =>
 {
     snapshotManager.AddSnapshot(snapshot);
@@ -35,11 +34,12 @@ monitor.OnSnapshotCreated += (snapshot) =>
     Console.WriteLine($"[调试] 识别到的块名列表:");
     foreach (var key in snapshot.DataBlocks.Keys)
     {
-        Console.WriteLine($"   - '{key}'"); // 打印出来，看看是否有空格或符号差异
+        Console.WriteLine($"   - '{key}'");
     }
 };
+
 Console.WriteLine($"[系统] 正在监听: {watchDir}");
-Console.WriteLine("操作指引: 将 wmass.out 放入文件夹。输入 's' 查看统计, 'q' 退出。");
+Console.WriteLine("操作指引: 将 wmass.out 放入文件夹。输入 's' 查看数据预览, 'q' 退出。");
 
 // 4. 交互循环
 while (true)
@@ -49,21 +49,60 @@ while (true)
 
     if (key == 's')
     {
-        // 这里的 Key 必须与 WMassTemplate.IdentifyBlockName 返回的字符串完全一致
+        // 目标块名
         string targetBlock = "各层刚心、偏心率、相邻层侧移刚度比等计算信息";
         var results = snapshotManager.AggregateLatestData(targetBlock);
 
-        Console.WriteLine($"\n--- 统计报告: {targetBlock} ---");
-        int count = 0;
+        Console.WriteLine($"\n--- 原始数据验证: {targetBlock} ---");
+        int fileCount = 0;
+
         foreach (var data in results)
         {
-            count++;
-            // 这里的 data 是 WMassProcessor.Process 返回的匿名对象
-            Console.WriteLine($"[记录 {count}] {data}");
+            fileCount++;
+            Console.WriteLine($"[文件记录 {fileCount}]");
+
+            // 使用 dynamic 访问 WMassProcessor 返回的匿名对象属性
+            // 注意：如果跨程序集访问匿名对象可能有局限，这里推荐通过反射获取 Records
+            var type = data.GetType();
+            var recordsProp = type.GetProperty("Records");
+
+            if (recordsProp != null)
+            {
+                var records = recordsProp.GetValue(data) as IEnumerable;
+                if (records != null)
+                {
+                    Console.WriteLine(new string('-', 60));
+                    // 打印表头
+                    Console.WriteLine($"{"层号",-6} | {"塔号",-6} | {"Ratx(剪切刚度比)",-15} | {"Raty",-10}");
+                    Console.WriteLine(new string('-', 60));
+
+                    foreach (var row in records)
+                    {
+                        if (row is Dictionary<string, string> dict)
+                        {
+                            string floor = dict.GetValueOrDefault("层号", "??");
+                            string tower = dict.GetValueOrDefault("塔号", "1");
+                            string ratx = dict.GetValueOrDefault("Ratx", "N/A");
+                            string raty = dict.GetValueOrDefault("Raty", "N/A");
+
+                            // 使用对齐格式，让数值排成一列
+                            Console.WriteLine($"{floor,-8} | {tower,-8} | {ratx,-18} | {raty,-10}");
+                        }
+                    }
+                    Console.WriteLine(new string('-', 60));
+                }
+            }
+            else
+            {
+                // 如果不是 WMassProcessor 处理的结构，则直接打印输出
+                Console.WriteLine($"  {data}");
+            }
         }
 
-        if (count == 0) Console.WriteLine("(!) 尚未在快照存储中找到该数据块，请确认文件已解析且块名匹配。");
-        Console.WriteLine("------------------------------\n");
+        if (fileCount == 0)
+            Console.WriteLine("(!) 尚未在快照存储中找到该数据块。请检查文件名是否为 wmass.out 以及块名是否匹配。");
+
+        Console.WriteLine("--------------------------------------------\n");
     }
 }
 
