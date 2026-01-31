@@ -27,7 +27,7 @@ namespace FileProcessor.Engine.Services
                     {
                         list.Add(snapshot);
                         // 保持按时间从新到旧排序
-                        var updatedList = list.OrderByDescending(s => s.ProcessedTime).Take(MaxHistoryPerFile).ToList();
+                        var updatedList = list.OrderByDescending(s => s.Timestamp).Take(MaxHistoryPerFile).ToList();
                         return updatedList;
                     }
                 });

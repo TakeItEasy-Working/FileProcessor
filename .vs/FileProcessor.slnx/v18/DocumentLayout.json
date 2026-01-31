@@ -3,40 +3,32 @@
   "WorkspaceRootPath": "D:\\3.Source\\FileProcessor\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|d:\\3.source\\fileprocessor\\fileprocessor\\core\\models\\filesnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|solutionrelative:fileprocessor\\core\\models\\filesnapshot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C4D80C35-4D20-4642-8B6B-7288899BB43E}|ConsoleTest\\ConsoleTest.csproj|d:\\3.source\\fileprocessor\\consoletest\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C4D80C35-4D20-4642-8B6B-7288899BB43E}|ConsoleTest\\ConsoleTest.csproj|solutionrelative:consoletest\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|d:\\3.source\\fileprocessor\\fileprocessor\\engine\\services\\snapshotmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|solutionrelative:fileprocessor\\engine\\services\\snapshotmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|d:\\3.source\\fileprocessor\\fileprocessor\\engine\\services\\filemonitorservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|solutionrelative:fileprocessor\\engine\\services\\filemonitorservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{E98028E9-2382-4450-A2F1-C276184C2DC0}|WMass\\WMass.csproj|d:\\3.source\\fileprocessor\\wmass\\wmassprocessor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E98028E9-2382-4450-A2F1-C276184C2DC0}|WMass\\WMass.csproj|solutionrelative:wmass\\wmassprocessor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{E98028E9-2382-4450-A2F1-C276184C2DC0}|WMass\\WMass.csproj|d:\\3.source\\fileprocessor\\wmass\\wmasstemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{E98028E9-2382-4450-A2F1-C276184C2DC0}|WMass\\WMass.csproj|solutionrelative:wmass\\wmasstemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|d:\\3.source\\fileprocessor\\fileprocessor\\core\\contracts\\ifiletemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|solutionrelative:fileprocessor\\core\\contracts\\ifiletemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|d:\\3.source\\fileprocessor\\fileprocessor\\core\\contracts\\iblockprocessor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|solutionrelative:fileprocessor\\core\\contracts\\iblockprocessor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E98028E9-2382-4450-A2F1-C276184C2DC0}|WMass\\WMass.csproj|d:\\3.source\\fileprocessor\\wmass\\wmassprocessor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E98028E9-2382-4450-A2F1-C276184C2DC0}|WMass\\WMass.csproj|solutionrelative:wmass\\wmassprocessor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|d:\\3.source\\fileprocessor\\fileprocessor\\core\\infrastructure\\basefiletemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|solutionrelative:fileprocessor\\core\\infrastructure\\basefiletemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C4D80C35-4D20-4642-8B6B-7288899BB43E}|ConsoleTest\\ConsoleTest.csproj|d:\\3.source\\fileprocessor\\consoletest\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C4D80C35-4D20-4642-8B6B-7288899BB43E}|ConsoleTest\\ConsoleTest.csproj|solutionrelative:consoletest\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|d:\\3.source\\fileprocessor\\fileprocessor\\engine\\runtime\\fileorchestrator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|solutionrelative:fileprocessor\\engine\\runtime\\fileorchestrator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|d:\\3.source\\fileprocessor\\fileprocessor\\engine\\registration\\processorregistry.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|solutionrelative:fileprocessor\\engine\\registration\\processorregistry.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|d:\\3.source\\fileprocessor\\fileprocessor\\engine\\runtime\\pluginloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|solutionrelative:fileprocessor\\engine\\runtime\\pluginloader.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -46,7 +38,7 @@
       "DocumentGroups": [
         {
           "DockedHeight": 278,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Bookmark",
@@ -54,119 +46,93 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "FileSnapshot.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor\\Core\\Models\\FileSnapshot.cs",
-              "RelativeDocumentMoniker": "FileProcessor\\Core\\Models\\FileSnapshot.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor\\Core\\Models\\FileSnapshot.cs",
-              "RelativeToolTip": "FileProcessor\\Core\\Models\\FileSnapshot.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAQAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-30T15:28:39.186Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "FileOrchestrator.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor\\Engine\\Runtime\\FileOrchestrator.cs",
-              "RelativeDocumentMoniker": "FileProcessor\\Engine\\Runtime\\FileOrchestrator.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor\\Engine\\Runtime\\FileOrchestrator.cs",
-              "RelativeToolTip": "FileProcessor\\Engine\\Runtime\\FileOrchestrator.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAA4AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-30T14:50:38.08Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "BaseFileTemplate.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor\\Core\\Infrastructure\\BaseFileTemplate.cs",
-              "RelativeDocumentMoniker": "FileProcessor\\Core\\Infrastructure\\BaseFileTemplate.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor\\Core\\Infrastructure\\BaseFileTemplate.cs",
-              "RelativeToolTip": "FileProcessor\\Core\\Infrastructure\\BaseFileTemplate.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAA0AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-30T14:50:04.658Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "WMassProcessor.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\WMass\\WMassProcessor.cs",
-              "RelativeDocumentMoniker": "WMass\\WMassProcessor.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\WMass\\WMassProcessor.cs",
-              "RelativeToolTip": "WMass\\WMassProcessor.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAqAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-30T14:30:15.9Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "IFileTemplate.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor\\Core\\Contracts\\IFileTemplate.cs",
-              "RelativeDocumentMoniker": "FileProcessor\\Core\\Contracts\\IFileTemplate.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor\\Core\\Contracts\\IFileTemplate.cs",
-              "RelativeToolTip": "FileProcessor\\Core\\Contracts\\IFileTemplate.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAASAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-30T14:20:28.386Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 1,
               "Title": "WMassTemplate.cs",
               "DocumentMoniker": "D:\\3.Source\\FileProcessor\\WMass\\WMassTemplate.cs",
               "RelativeDocumentMoniker": "WMass\\WMassTemplate.cs",
               "ToolTip": "D:\\3.Source\\FileProcessor\\WMass\\WMassTemplate.cs",
               "RelativeToolTip": "WMass\\WMassTemplate.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAgAAAAAAAAAA==",
+              "ViewState": "AgIAABsAAAAAAAAAAAAywDMAAACAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-30T13:45:45.336Z",
+              "WhenOpened": "2026-01-31T11:01:51.865Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "WMassProcessor.cs",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\WMass\\WMassProcessor.cs",
+              "RelativeDocumentMoniker": "WMass\\WMassProcessor.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\WMass\\WMassProcessor.cs",
+              "RelativeToolTip": "WMass\\WMassProcessor.cs",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAAABAAAABNAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-31T10:49:16.119Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "FileMonitorService.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor\\Engine\\Services\\FileMonitorService.cs",
-              "RelativeDocumentMoniker": "FileProcessor\\Engine\\Services\\FileMonitorService.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor\\Engine\\Services\\FileMonitorService.cs",
-              "RelativeToolTip": "FileProcessor\\Engine\\Services\\FileMonitorService.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAACAAAABhAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-30T09:21:56.161Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "SnapshotManager.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor\\Engine\\Services\\SnapshotManager.cs",
-              "RelativeDocumentMoniker": "FileProcessor\\Engine\\Services\\SnapshotManager.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor\\Engine\\Services\\SnapshotManager.cs",
-              "RelativeToolTip": "FileProcessor\\Engine\\Services\\SnapshotManager.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-30T09:20:37.062Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\3.Source\\FileProcessor\\ConsoleTest\\Program.cs",
               "RelativeDocumentMoniker": "ConsoleTest\\Program.cs",
               "ToolTip": "D:\\3.Source\\FileProcessor\\ConsoleTest\\Program.cs",
               "RelativeToolTip": "ConsoleTest\\Program.cs",
-              "ViewState": "AgIAADAAAAAAAAAAAAAAAEgAAAARAAAAAAAAAA==",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAQwBIAAAAYAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-30T08:29:20.508Z",
+              "WhenOpened": "2026-01-31T10:48:17.551Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "FileOrchestrator.cs",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor\\Engine\\Runtime\\FileOrchestrator.cs",
+              "RelativeDocumentMoniker": "FileProcessor\\Engine\\Runtime\\FileOrchestrator.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor\\Engine\\Runtime\\FileOrchestrator.cs",
+              "RelativeToolTip": "FileProcessor\\Engine\\Runtime\\FileOrchestrator.cs",
+              "ViewState": "AgIAACoAAAAAAAAAAAD4vzYAAAAQAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-31T10:46:56.084Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ProcessorRegistry.cs",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor\\Engine\\Registration\\ProcessorRegistry.cs",
+              "RelativeDocumentMoniker": "FileProcessor\\Engine\\Registration\\ProcessorRegistry.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor\\Engine\\Registration\\ProcessorRegistry.cs",
+              "RelativeToolTip": "FileProcessor\\Engine\\Registration\\ProcessorRegistry.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAA7AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-31T10:46:56.125Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "IBlockProcessor.cs",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor\\Core\\Contracts\\IBlockProcessor.cs",
+              "RelativeDocumentMoniker": "FileProcessor\\Core\\Contracts\\IBlockProcessor.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor\\Core\\Contracts\\IBlockProcessor.cs",
+              "RelativeToolTip": "FileProcessor\\Core\\Contracts\\IBlockProcessor.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-31T10:16:56.47Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "PluginLoader.cs",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor\\Engine\\Runtime\\PluginLoader.cs",
+              "RelativeDocumentMoniker": "FileProcessor\\Engine\\Runtime\\PluginLoader.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor\\Engine\\Runtime\\PluginLoader.cs",
+              "RelativeToolTip": "FileProcessor\\Engine\\Runtime\\PluginLoader.cs",
+              "ViewState": "AgIAADQAAAAAAAAAAAAowCMAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-31T04:59:26.831Z",
               "EditorCaption": ""
             }
           ]

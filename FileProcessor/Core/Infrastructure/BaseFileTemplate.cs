@@ -1,5 +1,6 @@
 ﻿using FileProcessor.Core.Contracts;
 using FileProcessor.Core.Models;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace FileProcessor.Core.Infrastructure
@@ -17,6 +18,9 @@ namespace FileProcessor.Core.Infrastructure
         public IEnumerable<RawDataBlock> Parse(string filePath)
         {
             if (!File.Exists(filePath)) yield break;
+
+            // 1. 计算文件指纹 (MD5)
+            string fileHash = CalculateHash(filePath);
 
             // 1. 使用 FileShare.ReadWrite 兼容 Watcher 和各种编辑器
             using var fs = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
@@ -38,6 +42,7 @@ namespace FileProcessor.Core.Infrastructure
             // 4. 调用具体实现的拆分算法
             foreach (var block in SplitBlocks(lines, filePath))
             {
+                block.FileHash = fileHash;
                 yield return block;
             }
         }
@@ -58,6 +63,14 @@ namespace FileProcessor.Core.Infrastructure
 
             // 默认 GB2312 (解决 YJK 等国产软件输出的乱码问题)
             return Encoding.GetEncoding("GB2312");
+        }
+
+        private string CalculateHash(string filePath)
+        {
+            using var md5 = MD5.Create();
+            using var stream = File.OpenRead(filePath);
+            var hashBytes = md5.ComputeHash(stream);
+            return BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
         }
     }
 }

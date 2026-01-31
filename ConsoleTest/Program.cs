@@ -1,20 +1,22 @@
 ﻿using FileProcessor.Engine.Runtime;
 using FileProcessor.Engine.Services;
+using FileProcessor.Core.Models; // 引入模型命名空间
 using System.Text;
-using System.Collections; // 用于遍历列表
 
+// 注册 GB2312 编码支持（针对 YJK 输出文件）
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
 // --- 路径配置 ---
 string pluginDir = Path.Combine(AppContext.BaseDirectory, "Plugins");
 string watchDir = Path.Combine(AppContext.BaseDirectory, "WatchFolder");
 
+// 确保必要目录存在
 if (!Directory.Exists(pluginDir)) Directory.CreateDirectory(pluginDir);
 if (!Directory.Exists(watchDir)) Directory.CreateDirectory(watchDir);
 
 Console.WriteLine("=== .NET 10.0 文件分析系统运行中 ===");
 
-// 1. 初始化引擎：加载 DLL 插件
+// 1. 初始化引擎：加载 DLL 插件并注册
 var loader = new PluginLoader();
 var (templates, registry) = loader.LoadPlugins(pluginDir);
 Console.WriteLine($"[系统] 已加载模板: {templates.Count} 个");
@@ -27,14 +29,15 @@ var snapshotManager = new SnapshotManager();
 using var monitor = new FileMonitorService(watchDir, orchestrator);
 
 // 订阅事件：解析完成后自动入库
+// 此时得到的 snapshot.DataBlocks 中存储的是 ProcessedResult 强类型对象
 monitor.OnSnapshotCreated += (snapshot) =>
 {
     snapshotManager.AddSnapshot(snapshot);
-    Console.WriteLine($"\n[通知] 新文件已归档: {snapshot.FileName}");
+    Console.WriteLine($"\n[通知] 新文件已归档: {snapshot.FileName} (Hash: {snapshot.FileHash[..8]})");
     Console.WriteLine($"[调试] 识别到的块名列表:");
-    foreach (var key in snapshot.DataBlocks.Keys)
+    foreach (var blockName in snapshot.GetAvailableBlockNames())
     {
-        Console.WriteLine($"   - '{key}'");
+        Console.WriteLine($"    - '{blockName}'");
     }
 };
 
@@ -49,60 +52,54 @@ while (true)
 
     if (key == 's')
     {
-        // 目标块名
+        // 目标块名（必须与 Processor 中的 TargetBlockName 一致）
         string targetBlock = "各层刚心、偏心率、相邻层侧移刚度比等计算信息";
+
+        // 从 SnapshotManager 中获取最近一次解析到的该块结果
+        // 注意：AggregateLatestData 现在返回的是 IEnumerable<ProcessedResult>
         var results = snapshotManager.AggregateLatestData(targetBlock);
 
-        Console.WriteLine($"\n--- 原始数据验证: {targetBlock} ---");
+        Console.WriteLine($"\n--- 工业级数据验证: {targetBlock} ---");
         int fileCount = 0;
 
-        foreach (var data in results)
+        foreach (ProcessedResult result in results)
         {
             fileCount++;
-            Console.WriteLine($"[文件记录 {fileCount}]");
+            Console.WriteLine($"[记录源 {fileCount}] 来自文件: {result.BlockName}");
+            Console.WriteLine($"[显示名称] {result.DisplayName} | [分类] {result.Category}");
 
-            // 使用 dynamic 访问 WMassProcessor 返回的匿名对象属性
-            // 注意：如果跨程序集访问匿名对象可能有局限，这里推荐通过反射获取 Records
-            var type = data.GetType();
-            var recordsProp = type.GetProperty("Records");
-
-            if (recordsProp != null)
+            // 检查是否有行数据
+            if (result.Rows != null && result.Rows.Count > 0)
             {
-                var records = recordsProp.GetValue(data) as IEnumerable;
-                if (records != null)
+                Console.WriteLine(new string('-', 70));
+
+                // 动态构建表头：虽然我们知道 WMass 的结构，但这样写可以适配任何 ProcessedResult
+                // 我们根据 result.Columns 的定义来生成表头显示
+                var header = string.Join(" | ", result.Columns.Select(c => $"{c.HeaderText,-12}"));
+                Console.WriteLine(header);
+                Console.WriteLine(new string('-', 70));
+
+                // 遍历标准化的 Rows 字典列表
+                foreach (var row in result.Rows)
                 {
-                    Console.WriteLine(new string('-', 60));
-                    // 打印表头
-                    Console.WriteLine($"{"层号",-6} | {"塔号",-6} | {"Ratx(剪切刚度比)",-15} | {"Raty",-10}");
-                    Console.WriteLine(new string('-', 60));
+                    // 根据 Columns 定义的 Key 顺序提取数据
+                    var rowContent = string.Join(" | ", result.Columns.Select(c =>
+                        $"{row.GetValueOrDefault(c.Key, "N/A"),-12}"));
 
-                    foreach (var row in records)
-                    {
-                        if (row is Dictionary<string, string> dict)
-                        {
-                            string floor = dict.GetValueOrDefault("层号", "??");
-                            string tower = dict.GetValueOrDefault("塔号", "1");
-                            string ratx = dict.GetValueOrDefault("Ratx", "N/A");
-                            string raty = dict.GetValueOrDefault("Raty", "N/A");
-
-                            // 使用对齐格式，让数值排成一列
-                            Console.WriteLine($"{floor,-8} | {tower,-8} | {ratx,-18} | {raty,-10}");
-                        }
-                    }
-                    Console.WriteLine(new string('-', 60));
+                    Console.WriteLine(rowContent);
                 }
+                Console.WriteLine(new string('-', 70));
             }
             else
             {
-                // 如果不是 WMassProcessor 处理的结构，则直接打印输出
-                Console.WriteLine($"  {data}");
+                Console.WriteLine("  (！) 该数据块未包含可提取的行数据。");
             }
         }
 
         if (fileCount == 0)
-            Console.WriteLine("(!) 尚未在快照存储中找到该数据块。请检查文件名是否为 wmass.out 以及块名是否匹配。");
+            Console.WriteLine("(!) 尚未在快照存储中找到该数据块。请检查解析器是否成功执行。");
 
-        Console.WriteLine("--------------------------------------------\n");
+        Console.WriteLine("------------------------------------------------------------\n");
     }
 }
 

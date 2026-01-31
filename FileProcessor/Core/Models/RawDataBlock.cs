@@ -7,10 +7,20 @@ namespace FileProcessor.Core.Models
     /// <summary>
     /// 原始数据块：由 Parser 拆分出来的最小文本单元
     /// </summary>
-    public record RawDataBlock(
-     string BlockName,      // 由 Template.IdentifyBlockName 确定
-     string[] RawLines,     // 由 Parser 根据边界截取
-     int StartLineNumber,   // 溯源用：起始行号
-     string SourceFileName  // 溯源用：源文件
- );
+    public class RawDataBlock
+    {
+        public string BlockName { get; }
+        public string[] Lines { get; }
+        public int StartLineNumber { get; }
+        public string SourceFilePath { get; }
+        public string FileHash { get; set; } = string.Empty; // 新增这一行
+
+        public RawDataBlock(string blockName, string[] lines, int startLine, string filePath)
+        {
+            BlockName = blockName;
+            Lines = lines;
+            StartLineNumber = startLine;
+            SourceFilePath = filePath;
+        }
+    }
 }
