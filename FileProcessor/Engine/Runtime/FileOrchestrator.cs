@@ -1,66 +1,88 @@
 ﻿using FileProcessor.Core.Contracts;
 using FileProcessor.Core.Models;
-using FileProcessor.Engine.Registration;
-using System.Text.RegularExpressions;
+using System.Security.Cryptography;
 
 namespace FileProcessor.Engine.Runtime
 {
     public class FileOrchestrator
     {
         private readonly IEnumerable<IFileTemplate> _templates;
-        private readonly ProcessorRegistry _processorRegistry;
+        private readonly ISnapshotManager _snapshotManager;
+        private readonly IEnumerable<IBlockProcessor> _processors;
 
-        public FileOrchestrator(IEnumerable<IFileTemplate> templates, ProcessorRegistry registry)
+        public FileOrchestrator(
+            IEnumerable<IFileTemplate> templates,
+            ISnapshotManager snapshotManager,
+            IEnumerable<IBlockProcessor> processors)
         {
             _templates = templates;
-            _processorRegistry = registry;
+            _snapshotManager = snapshotManager;
+            _processors = processors;
         }
 
-        public FileSnapshot? ProcessFile(string filePath)
+        public void ProcessFile(string filePath, string versionId)
         {
             var fileName = Path.GetFileName(filePath);
 
-            // 1. 匹配文件模板 使用不区分大小写的匹配，避免大小写导致不能匹配
             var template = _templates.FirstOrDefault(t =>
-                Regex.IsMatch(fileName, t.FileNamePattern, RegexOptions.IgnoreCase));
+                System.Text.RegularExpressions.Regex.IsMatch(fileName, t.FileNamePattern));
 
-            if (template == null)
-            {
-                Console.WriteLine($"[Debug] 未匹配到模板，跳过解析。请确认文件名是否满足模板模式。");
-                return null;
-            }
+            if (template == null) return;
 
-            // 2. 调用插件基类 Parse (内部已处理流读取和 FileHash)
-            // 假设 BaseFileTemplate 现在返回 RawDataBlock 的同时包含 Hash
-            var rawBlocks = template.Parse(filePath).ToList();
-            if (!rawBlocks.Any()) return null;
+            string fileHash = ComputeHash(filePath);
+            var rawBlocks = template.Parse(filePath);
 
-            var snapshot = new FileSnapshot
-            {
-                FileName = fileName,
-                FilePath = filePath,
-                FileHash = rawBlocks.First().FileHash, // 从块元数据中获取指纹
-                Timestamp = DateTime.Now
-            };
-
-            // 3. 核心加工逻辑：将 Raw 转为 Processed
             foreach (var rawBlock in rawBlocks)
             {
-                // 根据新接口逻辑：先找匹配的处理器，再按优先级排序
-                var processor = _processorRegistry
-                    .GetProcessorsForBlock(rawBlock.BlockName)
+                // 确保 RawDataBlock 携带最新的 Hash 供 Processor 使用
+                rawBlock.FileHash = fileHash;
+
+                // 寻找处理器：按 Priority 排序确保最匹配的先执行
+                var processor = _processors
+                    .Where(p => p.CanProcess(rawBlock.BlockName))
                     .OrderByDescending(p => p.Priority)
                     .FirstOrDefault();
 
                 if (processor != null)
                 {
+                    // 对齐方法名：使用 Process(rawBlock)
                     var result = processor.Process(rawBlock);
-                    // 存入快照，供 UI 使用
-                    snapshot.DataBlocks[rawBlock.BlockName] = result;
+
+                    // 最终注入：利用 object initializer 或修改字段
+                    // 注意：因为你的 ProcessedResult 属性是 init，
+                    // 如果不是 record 类型，我们需要在构造时确定，或者通过反射/扩展方法修改
+                    // 这里我们假设我们在 SnapshotManager 存储前统一包装
+
+                    var finalizedResult = WrapWithVersionMetadata(result, versionId, fileHash);
+
+                    _snapshotManager.AddSnapshot(finalizedResult);
                 }
             }
+        }
 
-            return snapshot;
+        private ProcessedResult WrapWithVersionMetadata(ProcessedResult result, string vid, string hash)
+        {
+            // 处理 init 属性的限制，如果是 class 则通常需要副本
+            // 这里体现了 Orchestrator 的“包装”职责
+            return new ProcessedResult
+            {
+                BlockName = result.BlockName,
+                DisplayName = result.DisplayName,
+                Category = result.Category,
+                Rows = result.Rows,
+                Columns = result.Columns,
+                Metadata = result.Metadata,
+                ProcessTime = DateTime.Now,
+                VersionId = vid,
+                OriginHash = hash
+            };
+        }
+
+        private string ComputeHash(string filePath)
+        {
+            using var sha = SHA256.Create();
+            using var stream = File.OpenRead(filePath);
+            return BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "");
         }
     }
 }

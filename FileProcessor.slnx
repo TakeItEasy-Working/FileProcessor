@@ -1,7 +1,9 @@
 <Solution>
+  <Project Path="ConProjectMonitor/ConProjectMonitor.csproj" Id="b19248a1-4860-4f6b-a0d3-3e4ec7a2bb27" />
   <Project Path="ConsoleTest/ConsoleTest.csproj" Id="c4d80c35-4d20-4642-8b6b-7288899bb43e">
     <BuildDependency Project="WMass/WMass.csproj" />
   </Project>
   <Project Path="FileProcessor/FileProcessor.csproj" />
+  <Project Path="UI/UI.csproj" Id="f00aabae-3bc6-4bd7-be7d-cc95447c4221" />
   <Project Path="WMass/WMass.csproj" Id="e98028e9-2382-4450-a2f1-c276184c2dc0" />
 </Solution>

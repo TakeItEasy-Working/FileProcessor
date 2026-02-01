@@ -26,7 +26,7 @@ var orchestrator = new FileOrchestrator(templates, registry);
 var snapshotManager = new SnapshotManager();
 
 // 3. 启动监控服务
-using var monitor = new FileMonitorService(watchDir, orchestrator);
+using var monitor = new ProjectMonitorService(watchDir, orchestrator);
 
 // 订阅事件：解析完成后自动入库
 // 此时得到的 snapshot.DataBlocks 中存储的是 ProcessedResult 强类型对象

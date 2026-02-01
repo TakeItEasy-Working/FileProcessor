@@ -12,5 +12,12 @@ namespace FileProcessor.Core.Contracts
 
         // 解析入口：负责从路径直接输出拆分后的原始数据块
         IEnumerable<RawDataBlock> Parse(string filePath);
+
+        /// <summary>
+        /// 文件所在的相对子目录。
+        /// 对于 YJK，可以返回 "设计结果"；
+        /// 对于根目录文件，返回 string.Empty 或 "."。
+        /// </summary>
+        string SubDirectory => string.Empty;
     }
 }
