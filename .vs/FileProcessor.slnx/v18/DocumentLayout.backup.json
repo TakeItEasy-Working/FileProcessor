@@ -3,32 +3,48 @@
   "WorkspaceRootPath": "D:\\3.Source\\FileProcessor\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|d:\\3.source\\fileprocessor\\fileprocessor\\core\\contracts\\isnapshotmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|solutionrelative:fileprocessor\\core\\contracts\\isnapshotmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|d:\\3.source\\fileprocessor\\fileprocessor\\engine\\runtime\\fileorchestrator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|solutionrelative:fileprocessor\\engine\\runtime\\fileorchestrator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B19248A1-4860-4F6B-A0D3-3E4EC7A2BB27}|ConProjectMonitor\\ConProjectMonitor.csproj|d:\\3.source\\fileprocessor\\conprojectmonitor\\mockblockprocessor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B19248A1-4860-4F6B-A0D3-3E4EC7A2BB27}|ConProjectMonitor\\ConProjectMonitor.csproj|solutionrelative:conprojectmonitor\\mockblockprocessor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B19248A1-4860-4F6B-A0D3-3E4EC7A2BB27}|ConProjectMonitor\\ConProjectMonitor.csproj|d:\\3.source\\fileprocessor\\conprojectmonitor\\mockouttemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B19248A1-4860-4F6B-A0D3-3E4EC7A2BB27}|ConProjectMonitor\\ConProjectMonitor.csproj|solutionrelative:conprojectmonitor\\mockouttemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B19248A1-4860-4F6B-A0D3-3E4EC7A2BB27}|ConProjectMonitor\\ConProjectMonitor.csproj|d:\\3.source\\fileprocessor\\conprojectmonitor\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B19248A1-4860-4F6B-A0D3-3E4EC7A2BB27}|ConProjectMonitor\\ConProjectMonitor.csproj|solutionrelative:conprojectmonitor\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{B19248A1-4860-4F6B-A0D3-3E4EC7A2BB27}|ConProjectMonitor\\ConProjectMonitor.csproj|d:\\3.source\\fileprocessor\\conprojectmonitor\\inmemorysnapshotmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{B19248A1-4860-4F6B-A0D3-3E4EC7A2BB27}|ConProjectMonitor\\ConProjectMonitor.csproj|solutionrelative:conprojectmonitor\\inmemorysnapshotmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|d:\\3.source\\fileprocessor\\fileprocessor\\engine\\services\\projectmonitorservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{948C2DB7-DBFE-23FE-2B43-E6DEE41F33E1}|FileProcessor\\FileProcessor.csproj|solutionrelative:fileprocessor\\engine\\services\\projectmonitorservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|d:\\3.source\\fileprocessor\\ui\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|solutionrelative:ui\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|d:\\3.source\\fileprocessor\\ui\\models\\mockblockprocessor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|solutionrelative:ui\\models\\mockblockprocessor.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|d:\\3.source\\fileprocessor\\ui\\helpers\\datagridhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|solutionrelative:ui\\helpers\\datagridhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|d:\\3.source\\fileprocessor\\ui\\models\\mockouttemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|solutionrelative:ui\\models\\mockouttemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|d:\\3.source\\fileprocessor\\ui\\viewmodels\\mainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|solutionrelative:ui\\viewmodels\\mainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|d:\\3.source\\fileprocessor\\ui\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|solutionrelative:ui\\mainwindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|d:\\3.source\\fileprocessor\\ui\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|solutionrelative:ui\\app.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|d:\\3.source\\fileprocessor\\ui\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|solutionrelative:ui\\app.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|d:\\3.source\\fileprocessor\\ui\\models\\simplesnapshotmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|solutionrelative:ui\\models\\simplesnapshotmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|d:\\3.source\\fileprocessor\\ui\\viewmodels\\displaycardviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F00AABAE-3BC6-4BD7-BE7D-CC95447C4221}|UI\\UI.csproj|solutionrelative:ui\\viewmodels\\displaycardviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,21 +54,8 @@
       "DocumentGroups": [
         {
           "DockedHeight": 278,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "FileOrchestrator.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor\\Engine\\Runtime\\FileOrchestrator.cs",
-              "RelativeDocumentMoniker": "FileProcessor\\Engine\\Runtime\\FileOrchestrator.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor\\Engine\\Runtime\\FileOrchestrator.cs",
-              "RelativeToolTip": "FileProcessor\\Engine\\Runtime\\FileOrchestrator.cs",
-              "ViewState": "AgIAACQAAAAAAAAAAAAywA4AAAAMAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-01T03:05:13.374Z",
-              "EditorCaption": ""
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
@@ -60,79 +63,142 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "ISnapshotManager.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor\\Core\\Contracts\\ISnapshotManager.cs",
-              "RelativeDocumentMoniker": "FileProcessor\\Core\\Contracts\\ISnapshotManager.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor\\Core\\Contracts\\ISnapshotManager.cs",
-              "RelativeToolTip": "FileProcessor\\Core\\Contracts\\ISnapshotManager.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAUAAAAAAAAAA==",
+              "Title": "ProjectMonitorService.cs",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor\\Engine\\Services\\ProjectMonitorService.cs",
+              "RelativeDocumentMoniker": "FileProcessor\\Engine\\Services\\ProjectMonitorService.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor\\Engine\\Services\\ProjectMonitorService.cs",
+              "RelativeToolTip": "FileProcessor\\Engine\\Services\\ProjectMonitorService.cs",
+              "ViewState": "AgIAAI8AAAAAAAAAAAAuwJwAAAAaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-01T02:20:46.303Z",
+              "WhenOpened": "2026-02-01T11:12:05.57Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "DataGridHelper.cs",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\UI\\Helpers\\DataGridHelper.cs",
+              "RelativeDocumentMoniker": "UI\\Helpers\\DataGridHelper.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\UI\\Helpers\\DataGridHelper.cs",
+              "RelativeToolTip": "UI\\Helpers\\DataGridHelper.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABMAAABuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-01T10:04:14.476Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\UI\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "UI\\MainWindow.xaml",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\UI\\MainWindow.xaml",
+              "RelativeToolTip": "UI\\MainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-02-01T05:50:40.91Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 2,
               "Title": "MockBlockProcessor.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\ConProjectMonitor\\MockBlockProcessor.cs",
-              "RelativeDocumentMoniker": "ConProjectMonitor\\MockBlockProcessor.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\ConProjectMonitor\\MockBlockProcessor.cs",
-              "RelativeToolTip": "ConProjectMonitor\\MockBlockProcessor.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAABzAAAAAAAAAA==",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\UI\\Models\\MockBlockProcessor.cs",
+              "RelativeDocumentMoniker": "UI\\Models\\MockBlockProcessor.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\UI\\Models\\MockBlockProcessor.cs",
+              "RelativeToolTip": "UI\\Models\\MockBlockProcessor.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAA1wAoAAABQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-01T02:18:06.677Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "MockOutTemplate.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\ConProjectMonitor\\MockOutTemplate.cs",
-              "RelativeDocumentMoniker": "ConProjectMonitor\\MockOutTemplate.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\ConProjectMonitor\\MockOutTemplate.cs",
-              "RelativeToolTip": "ConProjectMonitor\\MockOutTemplate.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-01T02:17:37.606Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "InMemorySnapshotManager.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\ConProjectMonitor\\InMemorySnapshotManager.cs",
-              "RelativeDocumentMoniker": "ConProjectMonitor\\InMemorySnapshotManager.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\ConProjectMonitor\\InMemorySnapshotManager.cs",
-              "RelativeToolTip": "ConProjectMonitor\\InMemorySnapshotManager.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAA3AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-01T02:15:16.73Z",
+              "WhenOpened": "2026-02-01T05:55:28.361Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\ConProjectMonitor\\Program.cs",
-              "RelativeDocumentMoniker": "ConProjectMonitor\\Program.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\ConProjectMonitor\\Program.cs",
-              "RelativeToolTip": "ConProjectMonitor\\Program.cs",
-              "ViewState": "AgIAABUAAAAAAAAAAAAAAAsAAAAsAAAAAAAAAA==",
+              "Title": "MockOutTemplate.cs",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\UI\\Models\\MockOutTemplate.cs",
+              "RelativeDocumentMoniker": "UI\\Models\\MockOutTemplate.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\UI\\Models\\MockOutTemplate.cs",
+              "RelativeToolTip": "UI\\Models\\MockOutTemplate.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABgAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-01T02:12:30.307Z",
+              "WhenOpened": "2026-02-01T05:55:07.491Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 6,
-              "Title": "ProjectMonitorService.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor\\Engine\\Services\\ProjectMonitorService.cs",
-              "RelativeDocumentMoniker": "FileProcessor\\Engine\\Services\\ProjectMonitorService.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor\\Engine\\Services\\ProjectMonitorService.cs",
-              "RelativeToolTip": "FileProcessor\\Engine\\Services\\ProjectMonitorService.cs",
-              "ViewState": "AgIAAC0AAAAAAAAAAAAywEgAAABLAAAAAAAAAA==",
+              "Title": "MainWindow.xaml.cs",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\UI\\MainWindow.xaml.cs",
+              "RelativeDocumentMoniker": "UI\\MainWindow.xaml.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\UI\\MainWindow.xaml.cs",
+              "RelativeToolTip": "UI\\MainWindow.xaml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-01T02:00:36.114Z",
+              "WhenOpened": "2026-02-01T05:51:11.498Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "App.xaml",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\UI\\App.xaml",
+              "RelativeDocumentMoniker": "UI\\App.xaml",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\UI\\App.xaml",
+              "RelativeToolTip": "UI\\App.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-02-01T05:48:21.089Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "SimpleSnapshotManager.cs",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\UI\\Models\\SimpleSnapshotManager.cs",
+              "RelativeDocumentMoniker": "UI\\Models\\SimpleSnapshotManager.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\UI\\Models\\SimpleSnapshotManager.cs",
+              "RelativeToolTip": "UI\\Models\\SimpleSnapshotManager.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAAAkAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-01T05:45:50.556Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "App.xaml.cs",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\UI\\App.xaml.cs",
+              "RelativeDocumentMoniker": "UI\\App.xaml.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\UI\\App.xaml.cs",
+              "RelativeToolTip": "UI\\App.xaml.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAIAwwBoAAAA6AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-01T05:41:43.54Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "MainViewModel.cs",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\UI\\ViewModels\\MainViewModel.cs",
+              "RelativeDocumentMoniker": "UI\\ViewModels\\MainViewModel.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\UI\\ViewModels\\MainViewModel.cs",
+              "RelativeToolTip": "UI\\ViewModels\\MainViewModel.cs",
+              "ViewState": "AgIAAF4AAAAAAAAAAAAmwGQAAAAMAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-01T04:17:11.96Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "DisplayCardViewModel.cs",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\UI\\ViewModels\\DisplayCardViewModel.cs",
+              "RelativeDocumentMoniker": "UI\\ViewModels\\DisplayCardViewModel.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\UI\\ViewModels\\DisplayCardViewModel.cs",
+              "RelativeToolTip": "UI\\ViewModels\\DisplayCardViewModel.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAA6wBoAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-01T03:41:36.999Z",
               "EditorCaption": ""
             }
           ]
