@@ -1,13 +1,5 @@
-﻿using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
+using UI.ViewModels;
 
 namespace UI
 {
@@ -19,6 +11,14 @@ namespace UI
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void OnCardResize(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
+        {
+            if (sender is FrameworkElement thumb && thumb.DataContext is DisplayCardViewModel vm)
+            {
+                vm.CardWidth = Math.Max(300, vm.CardWidth + e.HorizontalChange);
+            }
         }
     }
 }

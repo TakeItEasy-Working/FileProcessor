@@ -2,133 +2,183 @@
 using CommunityToolkit.Mvvm.Input;
 using FileProcessor.Core.Contracts;
 using FileProcessor.Core.Models;
-using System.Collections.ObjectModel;
 using UI.Models;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System;
+using System.Collections.Generic;
 
 namespace UI.ViewModels
 {
     /// <summary>
-    /// 卡片视图模型：支持动态选择文件和数据块，并实时展示解析结果
+    /// 数据展示卡片视图模型：负责单个数据块的展示逻辑、模式切换及 UI 尺寸控制。
+    /// 该类与 MainViewModel 深度联动，支持全局版本同步。
     /// </summary>
     public partial class DisplayCardViewModel : ViewModelBase
     {
         private readonly ISnapshotManager _snapshotManager;
         private readonly IVersionCoordinator _versionCoordinator;
-
-        // --- 属性绑定：UI 交互 ---
-
-        /// <summary>
-        /// 当前卡片监视的源文件名（如 wmass.out）
-        /// </summary>
-        [ObservableProperty]
-        private string _sourceFileName = string.Empty;
+        private readonly MainViewModel _parent;
 
         /// <summary>
-        /// 当前卡片监视的目标数据块名
+        /// 卡片当前监控的源文件名（例如：result.txt）。
+        /// 改变时会触发可用数据块列表的刷新。
         /// </summary>
-        [ObservableProperty]
-        private string _targetBlockName = string.Empty;
+        [ObservableProperty] private string _sourceFileName = string.Empty;
 
         /// <summary>
-        /// 卡片工作模式：随动最新、全局同步、手动锁定
+        /// 卡片当前关注的数据块名称（例如：底层内力）。
+        /// 改变时会触发数据的重新加载。
         /// </summary>
-        [ObservableProperty]
-        private CardWorkMode _mode = CardWorkMode.FollowLatest;
+        [ObservableProperty] private string _targetBlockName = string.Empty;
 
         /// <summary>
-        /// 当前展示的数据结果
+        /// 卡片的工作模式：追随最新、同步全局或手动锁定。
         /// </summary>
-        [ObservableProperty]
-        private ProcessedResult? _currentData;
-
-        // --- 下拉列表：供 UI 筛选 ---
+        [ObservableProperty] private CardWorkMode _mode = CardWorkMode.FollowLatest;
 
         /// <summary>
-        /// 可选的文件名列表
+        /// 当前卡片展示的解析结果快照。
         /// </summary>
-        public ObservableCollection<string> AvailableFiles { get; } = new();
+        [ObservableProperty] private ProcessedResult? _currentData;
 
         /// <summary>
-        /// 可选的数据块名列表
+        /// 卡片在看板中的显示宽度，支持 UI 拖拽实时调整。
         /// </summary>
-        public ObservableCollection<string> AvailableBlockNames { get; } = new();
+        [ObservableProperty] private double _cardWidth = 480;
 
-        // --- 构造函数 ---
+        /// <summary>
+        /// 供 UI 绑定的文件列表，直接引用自父级 MainViewModel 的全局集合。
+        /// </summary>
+        public ObservableCollection<string> AvailableFiles => _parent.AvailableFiles;
 
-        public DisplayCardViewModel(ISnapshotManager snapshotManager, IVersionCoordinator versionCoordinator)
+        /// <summary>
+        /// 当前选定文件下发现的所有数据块名称。
+        /// </summary>
+        public ObservableCollection<string> AvailableBlocks { get; } = new();
+
+        /// <summary>
+        /// 初始化卡片视图模型。
+        /// </summary>
+        /// <param name="snapshotManager">内核快照管理器</param>
+        /// <param name="versionCoordinator">版本协同器</param>
+        /// <param name="parent">主界面视图模型引用</param>
+        public DisplayCardViewModel(
+            ISnapshotManager snapshotManager,
+            IVersionCoordinator versionCoordinator,
+            MainViewModel parent)
         {
             _snapshotManager = snapshotManager;
             _versionCoordinator = versionCoordinator;
+            _parent = parent;
 
-            // 订阅仓库变动：当内核解析出新数据时，所有卡片都会收到通知
+            // 订阅内核数据更新事件
             _snapshotManager.DataUpdated += OnDataUpdated;
         }
 
-        // --- 属性变更回调 (CommunityToolkit 自动生成) ---
-
         /// <summary>
-        /// 当 SourceFileName 改变时（用户在下拉框选择了新文件）
+        /// 关闭命令：请求父容器将本卡片从集合中移除。
         /// </summary>
-        partial void OnSourceFileNameChanged(string value) => RefreshData();
-
-        /// <summary>
-        /// 当 TargetBlockName 改变时（用户在下拉框选择了新块）
-        /// </summary>
-        partial void OnTargetBlockNameChanged(string value) => RefreshData();
-
-        // --- 核心方法 ---
-
-        /// <summary>
-        /// 强制从仓库拉取并刷新当前 UI 数据
-        /// </summary>
-        public void RefreshData()
+        [RelayCommand]
+        private void Close()
         {
-            if (string.IsNullOrEmpty(SourceFileName) || string.IsNullOrEmpty(TargetBlockName))
-                return;
-
-            // 根据当前选中的 文件名 和 块名，从快照管理器获取最新的解析记录
-            // 注意：此处 GetHistory 需要确保能通过文件名过滤（如果接口支持）
-            // 暂时沿用原逻辑：按块名查找并取最后一次处理的结果
-            var latest = _snapshotManager.GetHistory(TargetBlockName)
-                            .OrderByDescending(r => r.ProcessTime)
-                            .FirstOrDefault();
-
-            // 如果该数据确实属于当前选中的文件，则更新 UI
-            // (注：未来如果 ProcessedResult 包含 OriginFile 属性会更精确)
-            CurrentData = latest;
+            _parent.RemoveCard(this);
         }
 
         /// <summary>
-        /// 实时更新逻辑：处理内核推送的新数据
+        /// 当文件名改变时，自动从历史库中筛选出该文件对应的所有 Block。
         /// </summary>
+        partial void OnSourceFileNameChanged(string value)
+        {
+            RefreshAvailableBlocks();
+        }
+
+        /// <summary>
+        /// 当目标块名改变时，立即刷新展示的数据。
+        /// </summary>
+        partial void OnTargetBlockNameChanged(string value)
+        {
+            RequestRefresh();
+        }
+
+        /// <summary>
+        /// 当模式改变时，根据新模式的要求重新拉取数据。
+        /// </summary>
+        partial void OnModeChanged(CardWorkMode value)
+        {
+            RequestRefresh();
+        }
+
+        /// <summary>
+        /// 主动刷新请求：根据当前选择的模式从快照仓库中定位最合适的数据。
+        /// </summary>
+        public void RequestRefresh()
+        {
+            if (string.IsNullOrEmpty(TargetBlockName)) return;
+
+            // 获取该数据块的所有历史快照记录
+            IEnumerable<ProcessedResult> history = _snapshotManager.GetHistory(TargetBlockName);
+
+            ProcessedResult? target = Mode switch
+            {
+                // 全局同步模式：匹配 MainViewModel 中选中的特定版本 ID
+                CardWorkMode.SyncGlobal => history.FirstOrDefault(r => r.VersionId == _parent.SelectedVersionId),
+
+                // 追随最新模式：获取处理时间戳最新的一条
+                CardWorkMode.FollowLatest => history.OrderByDescending(r => r.ProcessTime).FirstOrDefault(),
+
+                // 锁定模式：不执行自动刷新，保留当前数据
+                _ => CurrentData
+            };
+
+            CurrentData = target;
+        }
+
+        /// <summary>
+        /// 扫描内核仓库，提取出选定文件名下所有的 Block 名称。
+        /// </summary>
+        private void RefreshAvailableBlocks()
+        {
+            AvailableBlocks.Clear();
+
+            // 获取所有历史记录并根据元数据中的 OriginFile 进行过滤
+            var blocks = _snapshotManager.GetHistory(string.Empty)
+                            .Where(r => r.Metadata.ContainsKey("OriginFile") && r.Metadata["OriginFile"].ToString() == SourceFileName)
+                            .Select(r => r.BlockName)
+                            .Distinct();
+
+            foreach (var b in blocks)
+            {
+                AvailableBlocks.Add(b);
+            }
+        }
+
+        /// <summary>
+        /// 事件驱动更新：当内核推送新的解析结果时，判断是否属于本卡片的关注范围。
+        /// </summary>
+        /// <param name="result">新产生的解析结果</param>
         private void OnDataUpdated(ProcessedResult result)
         {
-            // 1. 过滤：只处理用户当前选中的那个“文件+块”组合
+            // 基础检查：Block 名称是否匹配
             if (result.BlockName != TargetBlockName) return;
 
-            // 2. 判断是否满足更新模式
             bool shouldUpdate = Mode switch
             {
-                CardWorkMode.FollowLatest => true, // 只要是这个块就更新
-                CardWorkMode.SyncGlobal => result.VersionId == _versionCoordinator.CurrentVersionId,
-                CardWorkMode.ManualLock => false,
+                // 追随最新模式下，任何该 Block 的更新都会导致 UI 刷新
+                CardWorkMode.FollowLatest => true,
+
+                // 同步全局模式下，只有新数据的版本号等于全局选定版本号时才更新
+                CardWorkMode.SyncGlobal => result.VersionId == _parent.SelectedVersionId,
+
+                // 锁定模式下，拒绝任何推送更新
                 _ => false
             };
 
             if (shouldUpdate)
             {
-                // 切换到 UI 线程更新属性，触发 DataGrid 刷新
-                App.Current.Dispatcher.Invoke(() => CurrentData = result);
+                // 确保跨线程 UI 更新的安全
+                System.Windows.Application.Current.Dispatcher.Invoke(() => CurrentData = result);
             }
-        }
-
-        /// <summary>
-        /// 手动刷新命令
-        /// </summary>
-        [RelayCommand]
-        private void ManualRefresh()
-        {
-            RefreshData();
         }
     }
 }

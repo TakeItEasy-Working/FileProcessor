@@ -1,7 +1,5 @@
 ﻿using FileProcessor.Core.Contracts;
-using FileProcessor.Core.Models;
 using FileProcessor.Engine.Runtime;
-using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
 
 namespace FileProcessor.Engine.Services
@@ -12,165 +10,147 @@ namespace FileProcessor.Engine.Services
     public enum EngineState
     {
         Idle,       // 停机
-        Scanning,   // 初始扫描阶段（处理历史存量）
-        Monitoring  // 实时监控阶段（处理实时增量）
+        Scanning,   // 初始扫描阶段
+        Monitoring  // 实时监控阶段
     }
 
+    /// <summary>
+    /// 项目监控服务：回滚并修复版
+    /// 仅负责监听文件系统变动，不直接持有 Template 集合，通过 Orchestrator 驱动。
+    /// </summary>
     public partial class ProjectMonitorService
     {
         private readonly FileOrchestrator _orchestrator;
         private readonly IVersionCoordinator _versionCoordinator;
-        private readonly IEnumerable<IFileTemplate> _templates;
         private readonly ISnapshotManager _snapshotManager;
 
-        private FileSystemWatcher _sentinelWatcher; // 哨兵监听（dsnctrl.ini）
-        private FileSystemWatcher _resultWatcher;   // 结果文件监听（子目录）
+        private FileSystemWatcher? _sentinelWatcher;
+        private FileSystemWatcher? _resultWatcher;
 
         private EngineState _currentState = EngineState.Idle;
         private string _currentRoot = string.Empty;
+        private string _sentinelName = "dsnctrl.ini";
 
-        // 向外暴露状态，UI 可以据此显示“正在初始化...”
-        public event Action<EngineState> StateChanged;
+        public event Action<EngineState>? StateChanged;
 
+        /// <summary>
+        /// 构造函数：回滚至 3 参数版本，确保与初始 DI 容器配置兼容
+        /// </summary>
         public ProjectMonitorService(
             FileOrchestrator orchestrator,
             IVersionCoordinator versionCoordinator,
-            ISnapshotManager snapshotManager,
-            IEnumerable<IFileTemplate> templates)
+            ISnapshotManager snapshotManager)
         {
             _orchestrator = orchestrator;
             _versionCoordinator = versionCoordinator;
             _snapshotManager = snapshotManager;
-            _templates = templates;
-
-            InitializeWatchers();
-        }
-
-        private void InitializeWatchers()
-        {
-            // 1. 初始化哨兵监听器（监听根目录的 .ini）
-            _sentinelWatcher = new FileSystemWatcher();
-            _sentinelWatcher.Filter = "*.ini";
-            _sentinelWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime;
-            _sentinelWatcher.Changed += OnSentinelChanged;
-            _sentinelWatcher.Created += OnSentinelChanged;
-
-            // 2. 初始化结果监听器（监听所有子目录的变动）
-            _resultWatcher = new FileSystemWatcher();
-            _resultWatcher.IncludeSubdirectories = true;
-            _resultWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
-            _resultWatcher.Changed += OnFileChanged;
-            _resultWatcher.Created += OnFileChanged;
         }
 
         /// <summary>
-        /// 启动引擎：扫描 -> 监听
+        /// 启动监控任务（回滚版本）
         /// </summary>
-        public void Start(string projectPath)
+        public async Task StartMonitoringAsync(string path)
         {
-            if (string.IsNullOrEmpty(projectPath) || !Directory.Exists(projectPath)) return;
+            if (string.IsNullOrWhiteSpace(path) || !Directory.Exists(path))
+                return;
 
-            // 如果路径更换，先停止旧任务
-            if (_currentState != EngineState.Idle) Stop();
+            StopMonitoring();
+            _currentRoot = path;
 
-            _currentRoot = projectPath;
-
-            // --- 步骤 1: 进入扫描状态 ---
             UpdateState(EngineState.Scanning);
 
-            // 清理旧仓库数据，准备新扫描
+            // 1. 清理仓库旧数据
             _snapshotManager.Clear();
 
-            // 执行初始扫描
-            PerformInitialScan(projectPath);
+            // 2. 执行初始全量扫描
+            await Task.Run(() => PerformInitialScan(path));
 
-            // --- 步骤 2: 切换到监控状态 ---
+            // 3. 开启实时监听
+            SetupWatchers(path);
+
             UpdateState(EngineState.Monitoring);
-
-            _sentinelWatcher.Path = projectPath;
-            _sentinelWatcher.EnableRaisingEvents = true;
-
-            _resultWatcher.Path = projectPath;
-            _resultWatcher.EnableRaisingEvents = true;
         }
 
-        public void Stop()
+        public void StopMonitoring()
         {
-            _sentinelWatcher.EnableRaisingEvents = false;
-            _resultWatcher.EnableRaisingEvents = false;
+            _sentinelWatcher?.Dispose();
+            _resultWatcher?.Dispose();
+            _sentinelWatcher = null;
+            _resultWatcher = null;
             UpdateState(EngineState.Idle);
         }
 
         /// <summary>
-        /// 核心逻辑：扫描已有文件
+        /// 初始扫描逻辑：修复了 CS1061 错误。
+        /// 不再调用 Orchestrator 不存在的 ScanDirectory，而是利用其暴露的 Templates 进行扫描。
         /// </summary>
         private void PerformInitialScan(string rootPath)
         {
-            // 设定一个特殊的版本号用于标记存量数据
-            string initialVersion = $"Initial_Scan_{DateTime.Now:yyyyMMdd_HHmm}";
+            // 锁定版本为初始版本
+            _versionCoordinator.ForceVersion("Initial_History");
 
-            // 强制版本协调器锁定在此版本，不触发正常的 3s 倒计时
-            _versionCoordinator.ForceVersion(initialVersion);
+            // 获取编排器中注册的所有模板
+            var templates = _orchestrator.Templates;
 
-            foreach (var template in _templates)
+            if (templates != null)
             {
-                // 确定搜索目录
-                string searchDir = string.IsNullOrEmpty(template.SubDirectory)
-                    ? rootPath
-                    : Path.Combine(rootPath, template.SubDirectory);
-
-                if (!Directory.Exists(searchDir)) continue;
-
-                // 寻找符合正则的文件
-                var files = Directory.GetFiles(searchDir, "*.*")
-                    .Where(f => Regex.IsMatch(Path.GetFileName(f), template.FileNamePattern));
-
-                foreach (var file in files)
+                foreach (var template in templates)
                 {
-                    try
+                    string targetDir = string.IsNullOrEmpty(template.SubDirectory)
+                        ? rootPath
+                        : Path.Combine(rootPath, template.SubDirectory);
+
+                    if (!Directory.Exists(targetDir)) continue;
+
+                    var files = Directory.GetFiles(targetDir, "*.*", SearchOption.TopDirectoryOnly);
+                    foreach (var file in files)
                     {
-                        // 执行解析并直接存入仓库
-                         _orchestrator.ProcessFile(file, initialVersion, template);
-                    }
-                    catch (Exception ex)
-                    {
-                        // 记录日志，但不中断扫描
-                        System.Diagnostics.Debug.WriteLine($"扫描文件失败 {file}: {ex.Message}");
+                        if (Regex.IsMatch(Path.GetFileName(file), template.FileNamePattern))
+                        {
+                            // 调用编排器已有的 ProcessFile 方法
+                            _orchestrator.ProcessFile(file, "Initial_History", template);
+                        }
                     }
                 }
             }
 
-            // 扫描结束，发出通知（让 UI 一次性刷新）
-            // 注意：需在 ISnapshotManager 实现此方法
             _snapshotManager.NotifyBatchComplete();
+        }
+
+        private void SetupWatchers(string path)
+        {
+            // 监听哨兵文件
+            _sentinelWatcher = new FileSystemWatcher(path, _sentinelName)
+            {
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName,
+                EnableRaisingEvents = true
+            };
+            _sentinelWatcher.Changed += OnSentinelChanged;
+
+            // 监听结果文件（递归监听所有子目录）
+            _resultWatcher = new FileSystemWatcher(path)
+            {
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName,
+                IncludeSubdirectories = true,
+                EnableRaisingEvents = true
+            };
+            _resultWatcher.Changed += OnFileChanged;
+            _resultWatcher.Created += OnFileChanged;
         }
 
         private void OnSentinelChanged(object sender, FileSystemEventArgs e)
         {
-            // 只有在监控状态下才响应变动，防止扫描时的 IO 干扰
             if (_currentState != EngineState.Monitoring) return;
-
-            if (e.Name.Equals("dsnctrl.ini", StringComparison.OrdinalIgnoreCase))
-            {
-                _versionCoordinator.TriggerNewVersion();
-            }
+            _versionCoordinator.TriggerNewVersion();
         }
 
         private void OnFileChanged(object sender, FileSystemEventArgs e)
         {
             if (_currentState != EngineState.Monitoring) return;
 
-            // 寻找匹配该文件的模板
-            var template = _templates.FirstOrDefault(t =>
-                Regex.IsMatch(e.Name, t.FileNamePattern) ||
-                Regex.IsMatch(Path.GetFileName(e.FullPath), t.FileNamePattern));
-
-            if (template != null)
-            {
-                // 获取当前活动版本号
-                string versionId = _versionCoordinator.GetCurrentVersion();
-                _orchestrator.ProcessFile(e.FullPath, versionId, template);
-            }
+            // 获取当前版本并解析
+            string currentVersion = _versionCoordinator.GetCurrentVersion();
+            _orchestrator.ProcessFile(e.FullPath, currentVersion);
         }
 
         private void UpdateState(EngineState newState)

@@ -1,22 +1,18 @@
-﻿using FileProcessor.Core.Contracts;
+﻿using FileProcessor.Core.Attributes;
 using FileProcessor.Core.Infrastructure;
 using FileProcessor.Core.Models;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 
 namespace WMass.Plugin
 {
+    /// <summary>
+    /// WMass 结果文件解析插件。
+    /// 通过特性告知核心 DLL：监控 wmass.out，且它位于“设计结果”子目录。
+    /// </summary>
+    [FileProcessorPlugin(@"(?i)wmass\.out", "设计结果")]
     public class WMassTemplate : BaseFileTemplate
     {
-        // 匹配模式：忽略大小写更稳健
-        public override string FileNamePattern => @"wmass.out";
-
-        // YJK 输出目录
-        public override string SubDirectory => "设计结果";
-
         /// <summary>
-        /// 基类 Parse 完成 IO 和编码识别后，会将行列表传回这里
+        /// 仅需实现核心的切块逻辑，IO 和编码由核心 DLL 处理
         /// </summary>
         protected override IEnumerable<RawDataBlock> SplitBlocks(List<string> lines, string filePath)
         {

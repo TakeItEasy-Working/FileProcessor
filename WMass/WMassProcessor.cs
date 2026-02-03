@@ -1,7 +1,5 @@
 ﻿using FileProcessor.Core.Contracts;
 using FileProcessor.Core.Models;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace WMass.Plugin

@@ -1,34 +1,45 @@
 ﻿using FileProcessor.Core.Contracts;
 using FileProcessor.Core.Models;
-using System.Security.Cryptography;
+using FileProcessor.Engine.Registration;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace FileProcessor.Engine.Runtime
 {
+    /// <summary>
+    /// 文件解析编排器：核心 DLL 的执行中枢。
+    /// 协调 Template 的切块与 Registry 的处理器分配。
+    /// </summary>
     public class FileOrchestrator
     {
         private readonly IEnumerable<IFileTemplate> _templates;
         private readonly ISnapshotManager _snapshotManager;
-        private readonly IEnumerable<IBlockProcessor> _processors;
+        private readonly ProcessorRegistry _processorRegistry;
+
+        /// <summary>
+        /// 获取当前引擎加载的所有文件模板
+        /// </summary>
+        public IEnumerable<IFileTemplate> Templates => _templates;
 
         public FileOrchestrator(
             IEnumerable<IFileTemplate> templates,
             ISnapshotManager snapshotManager,
-            IEnumerable<IBlockProcessor> processors)
+            ProcessorRegistry processorRegistry)
         {
             _templates = templates;
             _snapshotManager = snapshotManager;
-            _processors = processors;
+            _processorRegistry = processorRegistry;
         }
 
         /// <summary>
-        /// 原有方法：根据路径匹配模板并处理
+        /// 自动匹配模板并处理指定路径的文件
         /// </summary>
         public void ProcessFile(string filePath, string versionId)
         {
-            var fileName = Path.GetFileName(filePath);
-            var template = _templates.FirstOrDefault(t =>
-                System.Text.RegularExpressions.Regex.IsMatch(fileName, t.FileNamePattern));
-
+            var template = GetBestTemplate(filePath);
             if (template != null)
             {
                 ProcessFile(filePath, versionId, template);
@@ -36,55 +47,50 @@ namespace FileProcessor.Engine.Runtime
         }
 
         /// <summary>
-        /// 新增重载：直接传入模板，跳过匹配逻辑（供 ProjectMonitorService 初始扫描使用）
+        /// 使用指定模板处理文件（高性能模式，跳过匹配逻辑）
         /// </summary>
         public void ProcessFile(string filePath, string versionId, IFileTemplate template)
         {
             if (!File.Exists(filePath)) return;
 
-            string fileHash = ComputeHash(filePath);
+            // 调用 BaseFileTemplate 标准解析流程（含自动编码探测与哈希注入）
             var rawBlocks = template.Parse(filePath);
 
             foreach (var rawBlock in rawBlocks)
             {
-                rawBlock.FileHash = fileHash;
+                // 从注册表获取匹配此数据块的所有处理器
+                var processors = _processorRegistry.GetProcessorsForBlock(rawBlock.BlockName);
 
-                var processor = _processors
-                    .Where(p => p.CanProcess(rawBlock.BlockName))
-                    .OrderByDescending(p => p.Priority)
-                    .FirstOrDefault();
-
-                if (processor != null)
+                foreach (var processor in processors)
                 {
-                    var result = processor.Process(rawBlock);
-                    var finalizedResult = WrapWithVersionMetadata(result, versionId, fileHash);
-                    _snapshotManager.AddSnapshot(finalizedResult);
+                    try
+                    {
+                        var result = processor.Process(rawBlock);
+
+                        // 注入版本信息与预计算的哈希值
+                        result.VersionId = versionId;
+                        result.OriginHash = rawBlock.FileHash;
+
+                        // 存入快照管理器
+                        _snapshotManager.AddSnapshot(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[Orchestrator] 处理器 {processor.GetType().Name} 处理失败: {ex.Message}");
+                    }
                 }
             }
         }
 
-        private ProcessedResult WrapWithVersionMetadata(ProcessedResult result, string vid, string hash)
+        /// <summary>
+        /// 根据文件名正则匹配最佳模板
+        /// </summary>
+        public IFileTemplate? GetBestTemplate(string filePath)
         {
-            return new ProcessedResult
-            {
-                BlockName = result.BlockName,
-                DisplayName = result.DisplayName,
-                Category = result.Category,
-                Rows = result.Rows,
-                Columns = result.Columns,
-                Metadata = result.Metadata,
-                ProcessTime = DateTime.Now,
-                VersionId = vid,
-                OriginHash = hash
-            };
-        }
-
-        private string ComputeHash(string filePath)
-        {
-            // 商业软件建议：如果文件很大，初始扫描时可考虑只用文件大小+修改时间做弱 Hash 提高速度
-            using var sha = SHA256.Create();
-            using var stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            return BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "");
+            var fileName = Path.GetFileName(filePath);
+            return _templates.FirstOrDefault(t =>
+                !string.IsNullOrEmpty(t.FileNamePattern) &&
+                Regex.IsMatch(fileName, t.FileNamePattern));
         }
     }
 }

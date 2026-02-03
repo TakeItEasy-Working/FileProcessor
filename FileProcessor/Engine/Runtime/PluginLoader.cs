@@ -1,94 +1,103 @@
 ﻿using FileProcessor.Core.Attributes;
 using FileProcessor.Core.Contracts;
 using FileProcessor.Engine.Registration;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace FileProcessor.Engine.Runtime
 {
+    /// <summary>
+    /// 插件加载服务：负责从目录或当前程序域中扫描并实例化 Template 和 Processor。
+    /// 这是实现核心 DLL 与具体业务插件解耦的关键类。
+    /// </summary>
     public class PluginLoader
     {
-        public (List<IFileTemplate> Templates, ProcessorRegistry Processors) LoadPlugins(string pluginPath)
+        /// <summary>
+        /// 从指定目录加载外部 DLL 插件
+        /// </summary>
+        /// <param name="pluginPath">插件 DLL 所在目录</param>
+        /// <returns>加载到的模板列表和处理器注册表</returns>
+        public (List<IFileTemplate> Templates, ProcessorRegistry Registry) LoadPlugins(string pluginPath)
         {
             var templates = new List<IFileTemplate>();
             var registry = new ProcessorRegistry();
 
-            if (!Directory.Exists(pluginPath)) return (templates, registry);
-
-            var dlls = Directory.GetFiles(pluginPath, "*.dll");
-
-            foreach (var dll in dlls)
+            if (Directory.Exists(pluginPath))
             {
-                try
+                var dlls = Directory.GetFiles(pluginPath, "*.dll");
+                foreach (var dll in dlls)
                 {
-                    var assembly = Assembly.LoadFrom(dll);
-                    var types = assembly.GetTypes().Where(t => !t.IsInterface && !t.IsAbstract);
-
-                    foreach (var type in types)
+                    try
                     {
-                        // 1. 处理文件模板 (IFileTemplate)
-                        if (typeof(IFileTemplate).IsAssignableFrom(type))
-                        {
-                            if (Activator.CreateInstance(type) is IFileTemplate template)
-                            {
-                                templates.Add(template);
-                                Console.WriteLine($"[加载] 发现模板: {type.Name}");
-                            }
-                        }
-
-                        // 2. 处理块处理器 (IBlockProcessor)
-                        // 修正点：只要实现了接口，就直接注册，不再强制检查特性
-                        if (typeof(IBlockProcessor).IsAssignableFrom(type))
-                        {
-                            if (Activator.CreateInstance(type) is IBlockProcessor processor)
-                            {
-                                registry.Register(processor);
-
-                                // 打印加载信息，方便调试
-                                string source = type.Name;
-                                string target = processor.TargetBlockName;
-                                Console.WriteLine($"[加载] 注册处理器: {source} -> 目标块: {target}");
-                            }
-                        }
+                        var assembly = Assembly.LoadFrom(dll);
+                        var result = ScanAssembly(assembly);
+                        templates.AddRange(result.Templates);
+                        foreach (var p in result.Processors) registry.Register(p);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[PluginLoader] 加载 DLL 失败: {dll}, {ex.Message}");
                     }
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"[错误] 加载插件 {dll} 失败: {ex.Message}");
-                }
-                //var assembly = Assembly.LoadFrom(dll);
-                //var types = assembly.GetTypes().Where(t => !t.IsInterface && !t.IsAbstract);
-
-                //foreach (var type in types)
-                //{
-                //    // 1. 处理文件模板
-                //    if (typeof(IFileTemplate).IsAssignableFrom(type))
-                //    {
-                //        if (Activator.CreateInstance(type) is IFileTemplate template)
-                //            templates.Add(template);
-                //    }
-
-                //    // 2. 处理块处理器
-                //    if (typeof(IBlockProcessor).IsAssignableFrom(type))
-                //    {
-                //        if (Activator.CreateInstance(type) is IBlockProcessor processor)
-                //        {
-                //            // 尝试通过特性获取注册名
-                //            var attrs = type.GetCustomAttributes<BlockProcessorAttribute>();
-                //            if (attrs != null && attrs.Any())
-                //            {
-                //                foreach (var attr in attrs)
-                //                {
-                //                    // 为每一个标记的 BlockName 注册该处理器
-                //                    registry.Register(processor);
-                //                    Console.WriteLine($"[加载] 注册处理器: {type.Name} -> {attr.BlockName}");
-                //                }
-                //            }
-                //            // 即使没有特性，也可以通过 Registry 的模糊匹配逻辑发现
-                //        }
-                //    }
-                //}
             }
+
             return (templates, registry);
+        }
+
+        /// <summary>
+        /// 扫描当前程序域（包括主程序集和已引用的项目）中的插件
+        /// </summary>
+        public (List<IFileTemplate> Templates, ProcessorRegistry Registry) LoadFromCurrentDomain()
+        {
+            var templates = new List<IFileTemplate>();
+            var registry = new ProcessorRegistry();
+
+            // 扫描所有已加载的程序集（排除系统程序集以提高速度）
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.FullName.StartsWith("System") && !a.FullName.StartsWith("Microsoft"));
+
+            foreach (var assembly in assemblies)
+            {
+                var result = ScanAssembly(assembly);
+                templates.AddRange(result.Templates);
+                foreach (var p in result.Processors) registry.Register(p);
+            }
+
+            return (templates, registry);
+        }
+
+        /// <summary>
+        /// 核心扫描逻辑：识别带有特性的类
+        /// </summary>
+        private (List<IFileTemplate> Templates, List<IBlockProcessor> Processors) ScanAssembly(Assembly assembly)
+        {
+            var tList = new List<IFileTemplate>();
+            var pList = new List<IBlockProcessor>();
+
+            var types = assembly.GetTypes().Where(t => !t.IsInterface && !t.IsAbstract);
+
+            foreach (var type in types)
+            {
+                // 1. 识别并实例化 FileTemplate
+                if (typeof(IFileTemplate).IsAssignableFrom(type) &&
+                    type.GetCustomAttribute<FileProcessorPluginAttribute>() != null)
+                {
+                    if (Activator.CreateInstance(type) is IFileTemplate template)
+                        tList.Add(template);
+                }
+
+                // 2. 识别并实例化 BlockProcessor
+                if (typeof(IBlockProcessor).IsAssignableFrom(type) &&
+                    type.GetCustomAttribute<BlockProcessorAttribute>() != null)
+                {
+                    if (Activator.CreateInstance(type) is IBlockProcessor processor)
+                        pList.Add(processor);
+                }
+            }
+            return (tList, pList);
         }
     }
 }
