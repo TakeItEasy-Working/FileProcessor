@@ -1,9 +1,3 @@
-D:\3.Source\FileProcessor\UI\obj\Debug\net10.0-windows\UI.csproj.AssemblyReference.cache
-D:\3.Source\FileProcessor\UI\obj\Debug\net10.0-windows\MainWindow.g.cs
-D:\3.Source\FileProcessor\UI\obj\Debug\net10.0-windows\App.g.cs
-D:\3.Source\FileProcessor\UI\obj\Debug\net10.0-windows\GeneratedInternalTypeHelper.g.cs
-D:\3.Source\FileProcessor\UI\obj\Debug\net10.0-windows\UI_MarkupCompile.cache
-D:\3.Source\FileProcessor\UI\obj\Debug\net10.0-windows\UI_MarkupCompile.lref
 D:\3.Source\FileProcessor\UI\bin\Debug\net10.0-windows\UI.exe
 D:\3.Source\FileProcessor\UI\bin\Debug\net10.0-windows\UI.deps.json
 D:\3.Source\FileProcessor\UI\bin\Debug\net10.0-windows\UI.runtimeconfig.json
@@ -14,6 +8,12 @@ D:\3.Source\FileProcessor\UI\bin\Debug\net10.0-windows\FileProcessor.dll
 D:\3.Source\FileProcessor\UI\bin\Debug\net10.0-windows\WMass.dll
 D:\3.Source\FileProcessor\UI\bin\Debug\net10.0-windows\FileProcessor.pdb
 D:\3.Source\FileProcessor\UI\bin\Debug\net10.0-windows\WMass.pdb
+D:\3.Source\FileProcessor\UI\obj\Debug\net10.0-windows\UI.csproj.AssemblyReference.cache
+D:\3.Source\FileProcessor\UI\obj\Debug\net10.0-windows\MainWindow.g.cs
+D:\3.Source\FileProcessor\UI\obj\Debug\net10.0-windows\App.g.cs
+D:\3.Source\FileProcessor\UI\obj\Debug\net10.0-windows\GeneratedInternalTypeHelper.g.cs
+D:\3.Source\FileProcessor\UI\obj\Debug\net10.0-windows\UI_MarkupCompile.cache
+D:\3.Source\FileProcessor\UI\obj\Debug\net10.0-windows\UI_MarkupCompile.lref
 D:\3.Source\FileProcessor\UI\obj\Debug\net10.0-windows\App.baml
 D:\3.Source\FileProcessor\UI\obj\Debug\net10.0-windows\MainWindow.baml
 D:\3.Source\FileProcessor\UI\obj\Debug\net10.0-windows\UI.g.resources

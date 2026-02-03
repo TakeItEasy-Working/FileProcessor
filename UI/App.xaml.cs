@@ -3,6 +3,7 @@ using FileProcessor.Engine.Runtime;
 using FileProcessor.Engine.Services;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Windows;
 using UI.Models;
 using UI.ViewModels;
@@ -26,8 +27,17 @@ namespace UI
             // 只需要 PluginLoader，它会自动扫描带有 [FileProcessorPlugin] 和 [BlockProcessor] 特性的类
             var loader = new PluginLoader();
 
+            // 按照约定，我们将插件存放在主程序运行目录下的 Plugins 文件夹内
+            string pluginPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins");
+
+            // 如果文件夹不存在，则创建一个，方便用户放置 DLL
+            if (!Directory.Exists(pluginPath))
+            {
+                Directory.CreateDirectory(pluginPath);
+            }
+
             // 此时它会搜寻当前已引用的程序集（包括你后续要打包的插件 DLL）
-            var (templates, registry) = loader.LoadFromCurrentDomain();
+            var (templates, registry) = loader.LoadPlugins(pluginPath);
 
             // --- 2. 基础设施零件初始化 ---
             // 版本协同器：负责 3s 的静默聚合期

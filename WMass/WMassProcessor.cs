@@ -1,9 +1,11 @@
-﻿using FileProcessor.Core.Contracts;
+﻿using FileProcessor.Core.Attributes;
+using FileProcessor.Core.Contracts;
 using FileProcessor.Core.Models;
 using System.Text.RegularExpressions;
 
 namespace WMass.Plugin
 {
+    [BlockProcessor("各层刚心、偏心率、相邻层侧移刚度比等计算信息")]
     public class WMassProcessor : IBlockProcessor
     {
         public string TargetBlockName => "各层刚心、偏心率、相邻层侧移刚度比等计算信息";
