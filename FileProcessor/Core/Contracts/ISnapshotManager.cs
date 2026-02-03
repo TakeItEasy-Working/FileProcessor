@@ -11,6 +11,16 @@ namespace FileProcessor.Core.Contracts
         void AddSnapshot(ProcessedResult result);
 
         /// <summary>
+        /// 清理当前项目数据，为切换路径做准备
+        /// </summary>
+        void Clear();
+
+        /// <summary>
+        /// 主动触发批处理完成事件
+        /// </summary>
+        void NotifyBatchComplete();
+
+        /// <summary>
         /// 获取特定文件块的所有历史版本（用于 UI 历史对比）
         /// </summary>
         /// <param name="blockName"></param>
@@ -36,5 +46,10 @@ namespace FileProcessor.Core.Contracts
         /// 当有新的数据块解析完成并存入仓库时触发
         /// </summary>
         event Action<ProcessedResult> DataUpdated;
+
+        /// <summary>
+        /// 批处理完成通知（用于 Initial Scan 结束后一次性刷新 UI）
+        /// </summary>
+        event Action BatchUpdated;
     }
 }

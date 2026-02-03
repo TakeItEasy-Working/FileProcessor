@@ -27,6 +27,19 @@
         "runtime": {
           "bin/placeholder/FileProcessor.dll": {}
         }
+      },
+      "WMass/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "dependencies": {
+          "FileProcessor": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/WMass.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/WMass.dll": {}
+        }
       }
     }
   },
@@ -77,12 +90,18 @@
       "type": "project",
       "path": "../FileProcessor/FileProcessor.csproj",
       "msbuildProject": "../FileProcessor/FileProcessor.csproj"
+    },
+    "WMass/1.0.0": {
+      "type": "project",
+      "path": "../WMass/WMass.csproj",
+      "msbuildProject": "../WMass/WMass.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net10.0-windows7.0": [
       "CommunityToolkit.Mvvm >= 8.4.0",
-      "FileProcessor >= 1.0.0"
+      "FileProcessor >= 1.0.0",
+      "WMass >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -119,6 +138,9 @@
           "projectReferences": {
             "D:\\3.Source\\FileProcessor\\FileProcessor\\FileProcessor.csproj": {
               "projectPath": "D:\\3.Source\\FileProcessor\\FileProcessor\\FileProcessor.csproj"
+            },
+            "D:\\3.Source\\FileProcessor\\WMass\\WMass.csproj": {
+              "projectPath": "D:\\3.Source\\FileProcessor\\WMass\\WMass.csproj"
             }
           }
         }

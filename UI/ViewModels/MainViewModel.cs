@@ -2,12 +2,10 @@
 using CommunityToolkit.Mvvm.Input;
 using FileProcessor.Core.Contracts;
 using FileProcessor.Engine.Services;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Text;
 using System.Windows;
+using UI.ViewModels;
 
 namespace UI.ViewModels
 {
@@ -16,6 +14,10 @@ namespace UI.ViewModels
         private readonly ProjectMonitorService _monitorService;
         private readonly ISnapshotManager _snapshotManager;
         private readonly IVersionCoordinator _versionCoordinator;
+
+
+        // 记录上一次加载的路径，用于去重检查
+        private string _lastActivePath = string.Empty;
 
         // --- 属性绑定 ---
         [ObservableProperty] private string _projectRootPath = string.Empty;
@@ -36,29 +38,86 @@ namespace UI.ViewModels
             _snapshotManager = snapshotManager;
             _versionCoordinator = versionCoordinator;
 
-            // 监听数据仓库，当有新版本出现时更新列表
+            // 1. 监听单条数据更新：用于增量更新版本列表
             _snapshotManager.DataUpdated += (res) =>
             {
                 App.Current.Dispatcher.Invoke(() =>
                 {
                     if (!AllVersionIds.Contains(res.VersionId))
                     {
-                        AllVersionIds.Insert(0, res.VersionId); // 最新的排在最前面
+                        AllVersionIds.Insert(0, res.VersionId);
                     }
                 });
             };
+
+            // 2. 监听批处理完成：初始扫描结束后的动作
+            _snapshotManager.BatchUpdated += OnInitialScanFinished;
+
+            // --- 新增：程序启动时自动添加两个默认卡片 ---
+            AddTestCard();
         }
 
-        // --- 命令绑定 ---
-
-        [RelayCommand]
-        private void StartMonitoring()
+        /// <summary>
+        /// 当 ProjectRootPath 属性发生变化时（由 CommunityToolkit 自动触发）
+        /// </summary>
+        partial void OnProjectRootPathChanged(string value)
         {
-            if (Directory.Exists(ProjectRootPath))
+            HandlePathChange(value);
+        }
+
+        private void HandlePathChange(string newPath)
+        {
+            if (string.IsNullOrWhiteSpace(newPath) || !Directory.Exists(newPath)) return;
+
+            // 如果路径没变，不做任何操作
+            string fullPath = Path.GetFullPath(newPath);
+            if (fullPath.Equals(_lastActivePath, StringComparison.OrdinalIgnoreCase)) return;
+
+            // 如果已有卡片，切换路径前提示用户
+            if (DisplayCards.Any())
             {
-                _monitorService.Start(ProjectRootPath);
-                IsBusy = true; // 借用 ViewModelBase 的 IsBusy 表示监控中
+                var result = MessageBox.Show(
+                    "切换项目路径将清除当前卡片的所有历史记录，是否继续？",
+                    "项目切换确认",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.No)
+                {
+                    _projectRootPath = _lastActivePath;
+                    OnPropertyChanged(nameof(ProjectRootPath));
+                    return;
+                }
             }
+
+            // --- 执行切换逻辑 ---
+            _lastActivePath = fullPath;
+
+            // 清理 UI 列表
+            AllVersionIds.Clear();
+
+            IsBusy = true; // 表示正在初始化
+
+            // 启动内核
+            _monitorService.Start(fullPath);
+        }
+
+        private void OnInitialScanFinished()
+        {
+            App.Current.Dispatcher.Invoke(() =>
+            {
+                IsBusy = false;
+
+                // 强制刷新一次
+                OnPropertyChanged(nameof(IsBusy));
+
+                // 初始扫描完成后，强制所有卡片刷新到最新状态
+                foreach (var card in DisplayCards)
+                {
+                    card.RefreshData();
+                }
+            });
+            // MessageBox.Show("扫描完成！"); // 调试稳定后可移除
         }
 
         [RelayCommand]
@@ -68,72 +127,90 @@ namespace UI.ViewModels
             IsBusy = false;
         }
 
-
+        /// <summary>
+        /// 添加演示卡片：现在改为初始化带有下拉选项的通用卡片
+        /// </summary>
         [RelayCommand]
         private void AddTestCard()
         {
-            // 创建一个监听 wmass.out 的卡片
-            var wmassCard = new DisplayCardViewModel(_snapshotManager, _versionCoordinator)
-            {
-                SourceFileName = "wmass.out",
-                TargetBlockName = "Block_wmass.out", // 必须对应 MockOutTemplate 中的命名规则
-                Mode = Models.CardWorkMode.FollowLatest
-            };
+            // 1. 创建 WMass 演示卡片
+            var wmassCard = new DisplayCardViewModel(_snapshotManager, _versionCoordinator);
 
-            // 创建一个监听 wpj.out 的卡片
-            var wpjCard = new DisplayCardViewModel(_snapshotManager, _versionCoordinator)
-            {
-                SourceFileName = "wpj.out",
-                TargetBlockName = "Block_wpj.out",
-                Mode = Models.CardWorkMode.FollowLatest
-            };
+            // 填充可选文件列表
+            wmassCard.AvailableFiles.Add("wmass.out");
+            wmassCard.AvailableFiles.Add("wpj.out");
 
+            // 填充可选块名列表 (使用 WMassProcessor.cs 中的真实业务名称)
+            wmassCard.AvailableBlockNames.Add("各层刚心、偏心率、相邻层侧移刚度比等计算信息");
+            wmassCard.AvailableBlockNames.Add("楼层位移总结");
+
+            // 设置初始默认值
+            wmassCard.SourceFileName = "wmass.out";
+            wmassCard.TargetBlockName = "各层刚心、偏心率、相邻层侧移刚度比等计算信息";
+            wmassCard.Mode = Models.CardWorkMode.FollowLatest;
+
+            // 2. 创建 WPJ 演示卡片
+            var wpjCard = new DisplayCardViewModel(_snapshotManager, _versionCoordinator);
+            wpjCard.AvailableFiles.Add("wmass.out");
+            wpjCard.AvailableFiles.Add("wpj.out");
+            wpjCard.AvailableBlockNames.Add("各层刚心、偏心率、相邻层侧移刚度比等计算信息");
+            wpjCard.AvailableBlockNames.Add("楼层位移总结");
+
+            wpjCard.SourceFileName = "wpj.out";
+            wpjCard.TargetBlockName = "楼层位移总结";
+            wpjCard.Mode = Models.CardWorkMode.FollowLatest;
+
+            // 加入集合展示
             DisplayCards.Add(wmassCard);
             DisplayCards.Add(wpjCard);
         }
 
-
-
         [RelayCommand]
         private async Task SimulateYjkOutput()
         {
+            if (string.IsNullOrWhiteSpace(ProjectRootPath)) return;
 
-            if (string.IsNullOrWhiteSpace(ProjectRootPath))
-            {
-                MessageBox.Show("请先输入项目路径！");
-                return;
-            }
-
-            // 强制转换为绝对路径，防止相对路径漂移
             string root = Path.GetFullPath(ProjectRootPath);
             string designDir = Path.Combine(root, "设计结果");
 
             try
             {
-                if (!Directory.Exists(designDir))
-                {
-                    Directory.CreateDirectory(designDir);
-                    MessageBox.Show($"建立文件夹: {designDir}");
-                }
+                if (!Directory.Exists(designDir)) Directory.CreateDirectory(designDir);
 
-                // 打印路径到输出窗口，检查是否正确
-                MessageBox.Show($"正在写入到: {root}");
-
-                // 1. 写入哨兵
+                // 模拟 YJK 典型的写文件顺序
                 await File.WriteAllTextAsync(Path.Combine(root, "dsnctrl.ini"), $"RunID={DateTime.Now.Ticks}");
-
-                // 2. 模拟计算延迟
                 await Task.Delay(500);
 
-                // 3. 写入结果
-                await File.WriteAllTextAsync(Path.Combine(designDir, "wmass.out"), $"楼层位移: {new Random().Next(1, 100)}mm");
-                await File.WriteAllTextAsync(Path.Combine(designDir, "wpj.out"), $"配筋率: {new Random().NextDouble():F2}%");
+                // 模拟真实的块结构（带上标识符），以便让你的 Processor 能够识别
+                string wmassContent = "**** 各层刚心、偏心率、相邻层侧移刚度比等计算信息 ****\n" +
+                                     " 层号   X刚心   Y刚心\n" +
+                                     $"  1    {new Random().Next(10, 50)}    {new Random().Next(10, 50)}\n" +
+                                     "========================================";
 
-                MessageBox.Show("文件模拟生成成功，请等待静默期(3s)后查看卡片。");
+                await File.WriteAllTextAsync(Path.Combine(designDir, "wmass.out"), wmassContent);
+                await File.WriteAllTextAsync(Path.Combine(designDir, "wpj.out"), "楼层位移总结\n层号: 1  位移: 1.2mm");
+
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"写入失败详情: {ex.Message}");
+                MessageBox.Show($"模拟失败: {ex.Message}");
+            }
+        }
+
+        [RelayCommand]
+        private void BrowseFolder()
+        {
+            var dialog = new Microsoft.Win32.OpenFolderDialog
+            {
+                Title = "请选择 YJK 项目根目录",
+                InitialDirectory = string.IsNullOrWhiteSpace(ProjectRootPath)
+                    ? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+                    : ProjectRootPath
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                ProjectRootPath = dialog.FolderName;
             }
         }
     }

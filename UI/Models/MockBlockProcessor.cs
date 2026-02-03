@@ -1,40 +1,48 @@
 ﻿using FileProcessor.Core.Contracts;
 using FileProcessor.Core.Models;
+using System;
+using System.Collections.Generic;
 
-namespace ConProjectMonitor
+namespace UI.Models // 请确保命名空间与你的项目路径一致
 {
     public class MockBlockProcessor : IBlockProcessor
     {
-        // 简单处理：只要块名包含 "Block" 就处理
-        public string TargetBlockName => "MockBlock";
+        // 1. 显式实现接口成员：TargetBlockName
+        public string TargetBlockName => "各层刚心、偏心率、相邻层侧移刚度比等计算信息";
 
-        public bool CanProcess(string blockName) => blockName.Contains("Block");
+        // 2. 显式实现接口成员：Priority
+        public int Priority => 10;
 
-        public int Priority => 1;
+        // 3. 匹配逻辑
+        public bool CanProcess(string blockName) =>
+            blockName == TargetBlockName || blockName == "楼层位移总结";
 
         public ProcessedResult Process(RawDataBlock block)
         {
+            // 注意：ProcessedResult 的属性多为 init，适合用对象初始化器
             var result = new ProcessedResult
             {
                 BlockName = block.BlockName,
-                VersionId = "V1.0",
-                // 修正：使用 List<ColumnDefinition> 而不是 Dictionary
-                Columns = new List<ColumnDefinition> {
-            new ColumnDefinition (  "ID",    "编号" ),
-            new ColumnDefinition (  "Val",   "数值" ),
-            new ColumnDefinition (  "Time",  "生成时间" )
-        },
-                Rows = new List<Dictionary<string, string>>()
+                DisplayName = block.BlockName == TargetBlockName ? "刚心与偏心率" : "楼层位移",
+                Category = "模拟数据"
             };
 
-            for (int i = 1; i <= 3; i++)
+            // 4. 定义列元数据
+            result.Columns.Add(new ColumnDefinition("Floor", "层号", IsNumeric: true));
+            result.Columns.Add(new ColumnDefinition("Value", "模拟数值", IsNumeric: true));
+
+            // 5. 生成模拟行数据
+            var random = new Random();
+            for (int i = 1; i <= 5; i++)
             {
-                result.Rows.Add(new Dictionary<string, string> {
-            { "ID", i.ToString() },
-            { "Val", new Random().Next(100, 999).ToString() },
-            { "Time", DateTime.Now.ToString("HH:mm:ss") }
-        });
+                // 必须显式声明为 Dictionary<string, string> 以匹配 ProcessedResult.Rows
+                var row = new Dictionary<string, string>();
+                row.Add("Floor", i.ToString());
+                row.Add("Value", (random.Next(100, 500) / 10.0).ToString("F2"));
+
+                result.Rows.Add(row);
             }
+
             return result;
         }
     }

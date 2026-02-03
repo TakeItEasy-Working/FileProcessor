@@ -2,162 +2,181 @@
 using FileProcessor.Core.Models;
 using FileProcessor.Engine.Runtime;
 using System.Collections.Concurrent;
+using System.Text.RegularExpressions;
 
-namespace FileProcessor.Engine.Services;
-
-/// <summary>
-/// 增强版项目监控服务：支持双路监控（哨兵+数据）、版本协调、防抖及稳定性检测
-/// </summary>
-public class ProjectMonitorService : IDisposable
+namespace FileProcessor.Engine.Services
 {
-    private readonly FileOrchestrator _orchestrator;
-    private readonly IVersionCoordinator _versionCoordinator;
-    private readonly IEnumerable<IFileTemplate> _templates;
-
-    // 监控器集合：Key 为路径，Value 为观察者
-    private readonly ConcurrentDictionary<string, FileSystemWatcher> _watchers = new();
-    private readonly ConcurrentDictionary<string, Timer> _debouncers = new();
-
-    private const string SentinelFile = "dsnctrl.ini";
-    private const int DebounceDelayMs = 1000;
-    private const int MaxStabilityChecks = 10;
-    private const int StabilityCheckDelayMs = 300;
-
-    public ProjectMonitorService(
-        FileOrchestrator orchestrator,
-        IVersionCoordinator coordinator,
-        IEnumerable<IFileTemplate> templates)
+    /// <summary>
+    /// 引擎状态枚举：控制内核的行为模式
+    /// </summary>
+    public enum EngineState
     {
-        _orchestrator = orchestrator;
-        _versionCoordinator = coordinator;
-        _templates = templates;
+        Idle,       // 停机
+        Scanning,   // 初始扫描阶段（处理历史存量）
+        Monitoring  // 实时监控阶段（处理实时增量）
     }
 
-    public void Start(string rootPath)
+    public partial class ProjectMonitorService
     {
-        Stop(); // 清理旧连接
+        private readonly FileOrchestrator _orchestrator;
+        private readonly IVersionCoordinator _versionCoordinator;
+        private readonly IEnumerable<IFileTemplate> _templates;
+        private readonly ISnapshotManager _snapshotManager;
 
-        if (!Directory.Exists(rootPath)) Directory.CreateDirectory(rootPath);
+        private FileSystemWatcher _sentinelWatcher; // 哨兵监听（dsnctrl.ini）
+        private FileSystemWatcher _resultWatcher;   // 结果文件监听（子目录）
 
-        // 1. 开启根目录监控 (针对 dsnctrl.ini 哨兵)
-        CreateWatcher(rootPath, SentinelFile, OnSentinelEvent);
+        private EngineState _currentState = EngineState.Idle;
+        private string _currentRoot = string.Empty;
 
-        // 2. 开启子目录监控 (针对各插件定义的 SubDirectory)
-        var subDirs = _templates.Select(t => t.SubDirectory).Distinct();
-        foreach (var subDir in subDirs)
+        // 向外暴露状态，UI 可以据此显示“正在初始化...”
+        public event Action<EngineState> StateChanged;
+
+        public ProjectMonitorService(
+            FileOrchestrator orchestrator,
+            IVersionCoordinator versionCoordinator,
+            ISnapshotManager snapshotManager,
+            IEnumerable<IFileTemplate> templates)
         {
-            string targetPath = Path.Combine(rootPath, subDir);
-            if (!Directory.Exists(targetPath)) continue;
+            _orchestrator = orchestrator;
+            _versionCoordinator = versionCoordinator;
+            _snapshotManager = snapshotManager;
+            _templates = templates;
 
-            // 监控子目录下所有文件变动
-            CreateWatcher(targetPath, "*.*", OnDataFileEvent);
-
-            // 启动时扫描：将已有文件放入防抖队列处理
-            InitialScan(targetPath);
+            InitializeWatchers();
         }
-    }
 
-    private void CreateWatcher(string path, string filter, FileSystemEventHandler handler)
-    {
-        var watcher = new FileSystemWatcher(path, filter)
+        private void InitializeWatchers()
         {
-            NotifyFilter = NotifyFilters.FileName | NotifyFilters.LastWrite | NotifyFilters.Size,
-            EnableRaisingEvents = true,
-            InternalBufferSize = 64 * 1024
-        };
+            // 1. 初始化哨兵监听器（监听根目录的 .ini）
+            _sentinelWatcher = new FileSystemWatcher();
+            _sentinelWatcher.Filter = "*.ini";
+            _sentinelWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime;
+            _sentinelWatcher.Changed += OnSentinelChanged;
+            _sentinelWatcher.Created += OnSentinelChanged;
 
-        watcher.Created += handler;
-        watcher.Changed += handler;
+            // 2. 初始化结果监听器（监听所有子目录的变动）
+            _resultWatcher = new FileSystemWatcher();
+            _resultWatcher.IncludeSubdirectories = true;
+            _resultWatcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName;
+            _resultWatcher.Changed += OnFileChanged;
+            _resultWatcher.Created += OnFileChanged;
+        }
 
-        // 修复 CS0029 错误：
-        // 使用 lambda 表达式将 RenamedEventArgs 适配给 FileSystemEventHandler 所需的参数
-        watcher.Renamed += (s, e) => handler(s, e);
+        /// <summary>
+        /// 启动引擎：扫描 -> 监听
+        /// </summary>
+        public void Start(string projectPath)
+        {
+            if (string.IsNullOrEmpty(projectPath) || !Directory.Exists(projectPath)) return;
 
-        _watchers.TryAdd(path + filter, watcher);
-        Console.WriteLine($"[Watcher] 开始监控: {path} (Filter: {filter})");
-    }
+            // 如果路径更换，先停止旧任务
+            if (_currentState != EngineState.Idle) Stop();
 
-    private void OnSentinelEvent(object sender, FileSystemEventArgs e)
-    {
-        Console.WriteLine($"[Sentinel] 哨兵文件触发: {e.Name}");
-        // 关键点：通知协调器，开启/更新版本窗口
-        _versionCoordinator.NotifySentinelChanged(e.Name ?? SentinelFile);
-    }
+            _currentRoot = projectPath;
 
-    private void OnDataFileEvent(object sender, FileSystemEventArgs e)
-    {
-        // 过滤哨兵文件本身（防止逻辑循环）
-        if (e.Name == SentinelFile) return;
+            // --- 步骤 1: 进入扫描状态 ---
+            UpdateState(EngineState.Scanning);
 
-        // 防抖处理
-        _debouncers.AddOrUpdate(e.FullPath,
-            path => new Timer(_ => ProcessFileWorkflow(path), null, DebounceDelayMs, Timeout.Infinite),
-            (path, oldTimer) =>
+            // 清理旧仓库数据，准备新扫描
+            _snapshotManager.Clear();
+
+            // 执行初始扫描
+            PerformInitialScan(projectPath);
+
+            // --- 步骤 2: 切换到监控状态 ---
+            UpdateState(EngineState.Monitoring);
+
+            _sentinelWatcher.Path = projectPath;
+            _sentinelWatcher.EnableRaisingEvents = true;
+
+            _resultWatcher.Path = projectPath;
+            _resultWatcher.EnableRaisingEvents = true;
+        }
+
+        public void Stop()
+        {
+            _sentinelWatcher.EnableRaisingEvents = false;
+            _resultWatcher.EnableRaisingEvents = false;
+            UpdateState(EngineState.Idle);
+        }
+
+        /// <summary>
+        /// 核心逻辑：扫描已有文件
+        /// </summary>
+        private void PerformInitialScan(string rootPath)
+        {
+            // 设定一个特殊的版本号用于标记存量数据
+            string initialVersion = $"Initial_Scan_{DateTime.Now:yyyyMMdd_HHmm}";
+
+            // 强制版本协调器锁定在此版本，不触发正常的 3s 倒计时
+            _versionCoordinator.ForceVersion(initialVersion);
+
+            foreach (var template in _templates)
             {
-                oldTimer.Change(DebounceDelayMs, Timeout.Infinite);
-                return oldTimer;
-            });
-    }
+                // 确定搜索目录
+                string searchDir = string.IsNullOrEmpty(template.SubDirectory)
+                    ? rootPath
+                    : Path.Combine(rootPath, template.SubDirectory);
 
-    private void ProcessFileWorkflow(string filePath)
-    {
-        try
-        {
-            // 1. 稳定性检查
-            if (!WaitForFileStable(filePath)) return;
+                if (!Directory.Exists(searchDir)) continue;
 
-            // 2. 此时调用重构后的 Orchestrator
-            // 核心改进：从 versionCoordinator 获取当前的 VersionId
-            string currentVid = _versionCoordinator.CurrentVersionId;
+                // 寻找符合正则的文件
+                var files = Directory.GetFiles(searchDir, "*.*")
+                    .Where(f => Regex.IsMatch(Path.GetFileName(f), template.FileNamePattern));
 
-            Console.WriteLine($"[Processing] 开始解析: {Path.GetFileName(filePath)} (Version: {currentVid})");
+                foreach (var file in files)
+                {
+                    try
+                    {
+                        // 执行解析并直接存入仓库
+                         _orchestrator.ProcessFile(file, initialVersion, template);
+                    }
+                    catch (Exception ex)
+                    {
+                        // 记录日志，但不中断扫描
+                        System.Diagnostics.Debug.WriteLine($"扫描文件失败 {file}: {ex.Message}");
+                    }
+                }
+            }
 
-            // 解决了你的报错：现在提供了 versionId 参数
-            _orchestrator.ProcessFile(filePath, currentVid);
+            // 扫描结束，发出通知（让 UI 一次性刷新）
+            // 注意：需在 ISnapshotManager 实现此方法
+            _snapshotManager.NotifyBatchComplete();
         }
-        catch (Exception ex)
+
+        private void OnSentinelChanged(object sender, FileSystemEventArgs e)
         {
-            Console.WriteLine($"[Error] 处理文件失败 {filePath}: {ex.Message}");
+            // 只有在监控状态下才响应变动，防止扫描时的 IO 干扰
+            if (_currentState != EngineState.Monitoring) return;
+
+            if (e.Name.Equals("dsnctrl.ini", StringComparison.OrdinalIgnoreCase))
+            {
+                _versionCoordinator.TriggerNewVersion();
+            }
         }
-        finally
+
+        private void OnFileChanged(object sender, FileSystemEventArgs e)
         {
-            if (_debouncers.TryRemove(filePath, out var timer)) timer.Dispose();
+            if (_currentState != EngineState.Monitoring) return;
+
+            // 寻找匹配该文件的模板
+            var template = _templates.FirstOrDefault(t =>
+                Regex.IsMatch(e.Name, t.FileNamePattern) ||
+                Regex.IsMatch(Path.GetFileName(e.FullPath), t.FileNamePattern));
+
+            if (template != null)
+            {
+                // 获取当前活动版本号
+                string versionId = _versionCoordinator.GetCurrentVersion();
+                _orchestrator.ProcessFile(e.FullPath, versionId, template);
+            }
+        }
+
+        private void UpdateState(EngineState newState)
+        {
+            _currentState = newState;
+            StateChanged?.Invoke(newState);
         }
     }
-
-    // 复用你之前的稳定检测逻辑
-    private bool WaitForFileStable(string filePath)
-    {
-        if (!File.Exists(filePath)) return false;
-        long lastSize = -1;
-        DateTime lastWrite = DateTime.MinValue;
-
-        for (int i = 0; i < MaxStabilityChecks; i++)
-        {
-            var fi = new FileInfo(filePath);
-            if (fi.Length == lastSize && fi.LastWriteTimeUtc == lastWrite) return true;
-            lastSize = fi.Length;
-            lastWrite = fi.LastWriteTimeUtc;
-            Thread.Sleep(StabilityCheckDelayMs);
-        }
-        return false;
-    }
-
-    private void InitialScan(string path)
-    {
-        foreach (var file in Directory.GetFiles(path))
-        {
-            ProcessFileWorkflow(file);
-        }
-    }
-
-    public void Stop()
-    {
-        foreach (var w in _watchers.Values) w.Dispose();
-        _watchers.Clear();
-        foreach (var t in _debouncers.Values) t.Dispose();
-        _debouncers.Clear();
-    }
-
-    public void Dispose() => Stop();
 }

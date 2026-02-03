@@ -19,24 +19,38 @@ namespace UI.Helpers
 
         private static void OnBindableColumnsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            if (d is DataGrid dataGrid && e.NewValue is ProcessedResult result)
+            if (d is DataGrid dataGrid)
             {
                 dataGrid.Columns.Clear();
-                if (result.Columns == null) return;
+                dataGrid.ItemsSource = null;
 
-                foreach (var col in result.Columns)
+                if (e.NewValue is ProcessedResult result && result.Columns != null)
                 {
-                    // 注意：这里的 col 类型现在是 FileProcessor.Core.Models.ColumnDefinition
-                    dataGrid.Columns.Add(new DataGridTextColumn
-                    {
-                        // 确保这里调用的是你的成员：Header 和 Key
-                        Header = col.HeaderText,
-                        Binding = new Binding($"[{col.Key}]")
-                    });
-                }
+                    dataGrid.AutoGenerateColumns = false;
 
-                dataGrid.ItemsSource = result.Rows;
+                    foreach (var col in result.Columns)
+                    {
+                        dataGrid.Columns.Add(new DataGridTextColumn
+                        {
+                            // 【修正点】确保 col.Header 与 ColumnDefinition 中的属性名一致
+                            Header = col.HeaderText,
+
+                            Binding = new Binding($"[{col.Key}]"),
+
+                            ElementStyle = col.IsNumeric ? CreateRightAlignedStyle() : null
+                        });
+                    }
+
+                    dataGrid.ItemsSource = result.Rows;
+                }
             }
+        }
+
+        private static Style CreateRightAlignedStyle()
+        {
+            var style = new Style(typeof(TextBlock));
+            style.Setters.Add(new Setter(TextBlock.TextAlignmentProperty, TextAlignment.Right));
+            return style;
         }
     }
 }

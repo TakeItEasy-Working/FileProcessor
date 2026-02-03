@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WMass")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+194c5aedb83aaf2f307b101c2a19ee964dff7c9f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+421b9c49f53306bd632c42513f718a6b9d31373e")]
 [assembly: System.Reflection.AssemblyProductAttribute("WMass")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WMass")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

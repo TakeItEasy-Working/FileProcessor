@@ -7,7 +7,7 @@ namespace FileProcessor.Engine.Runtime
     {
         private string _currentVersionId = "Initial";
         private readonly Timer _aggregationTimer;
-        private readonly double _silencePeriodMs = 3000; // 3秒静默期
+        private readonly double _silencePeriodMs;
 
         public string CurrentVersionId => _currentVersionId;
         public bool IsRecording => _aggregationTimer.Enabled;
@@ -22,23 +22,47 @@ namespace FileProcessor.Engine.Runtime
             _aggregationTimer.Elapsed += (s, e) => OnTimerElapsed();
         }
 
+        /// <summary>
+        /// 原有逻辑：由特定的哨兵文件变动触发
+        /// </summary>
         public void NotifySentinelChanged(string sentinelName)
         {
-            // 如果不在录制中，或者收到了高优先级哨兵（如 dsnctrl.ini），则开启新版本
-            if (!IsRecording || sentinelName.EndsWith(".ini"))
-            {
-                _currentVersionId = $"V_{DateTime.Now:yyyyMMdd_HHmmss}";
-                Console.WriteLine($"[版本中心] 哨兵触发 ({sentinelName})，开启新版本: {_currentVersionId}");
-            }
+            // 内部逻辑已抽象到 TriggerNewVersion
+            TriggerNewVersion();
+        }
 
-            // 重置静默期计时器
+        /// <summary>
+        /// 实现接口：主动触发一个新版本的产生并启动计时
+        /// </summary>
+        public void TriggerNewVersion()
+        {
+            _currentVersionId = $"V_{DateTime.Now:yyyyMMdd_HHmmss}";
+            Console.WriteLine($"[版本中心] 信号触发，开启新版本: {_currentVersionId}");
+
+            // 重置计时器：在静默期内（如3秒）没有新信号，则认为该版本录制结束
             _aggregationTimer.Stop();
             _aggregationTimer.Start();
         }
 
+        /// <summary>
+        /// 实现接口：强制设定版本号（通常用于 Initial_Scan）
+        /// 此时会停止计时器，确保扫描期间不会因为超时而自动提交版本
+        /// </summary>
+        public void ForceVersion(string versionId)
+        {
+            _aggregationTimer.Stop();
+            _currentVersionId = versionId;
+            Console.WriteLine($"[版本中心] 强制锁定版本: {_currentVersionId} (计时器已关闭)");
+        }
+
+        /// <summary>
+        /// 实现接口：获取当前正在处理的版本 ID
+        /// </summary>
+        public string GetCurrentVersion() => _currentVersionId;
+
         private void OnTimerElapsed()
         {
-            Console.WriteLine($"[版本中心] 窗口期结束，版本锁定: {_currentVersionId}");
+            Console.WriteLine($"[版本中心] 静默期结束，版本提交: {_currentVersionId}");
             VersionCommitted?.Invoke(_currentVersionId);
         }
     }

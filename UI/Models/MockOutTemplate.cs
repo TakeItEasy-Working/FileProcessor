@@ -1,43 +1,31 @@
 ﻿using FileProcessor.Core.Contracts;
 using FileProcessor.Core.Models;
+using System;
 using System.IO;
 using System.Collections.Generic;
 
-namespace UI.Models // 建议放在 UI 项目下专门的 Mocks 或 Services 文件夹中
+namespace UI.Models
 {
     public class MockOutTemplate : IFileTemplate
     {
-        // 匹配所有以 .out 结尾的文件
-        public string FileNamePattern => @".*\.out$";
-
-        // 核心：告诉 MonitorService 到哪个子目录下寻找此类文件
+        public string FileNamePattern => "wmass.out"; // 匹配你的卡片默认设置
         public string SubDirectory => "设计结果";
 
         public IEnumerable<RawDataBlock> Parse(string filePath)
         {
-            // 1. 获取文件名，作为块名的一部分
-            string fileName = Path.GetFileName(filePath);
-
-            // 2. 读取文件内容（模拟读取）
-            string[] lines;
-            try
-            {
-                lines = File.ReadAllLines(filePath);
-            }
-            catch
-            {
-                // 如果文件被占用，返回一个简单的模拟内容
-                lines = new[] { "File is being accessed", "Value: Pending" };
-            }
-
-            // 3. 模拟拆分逻辑：
-            // 我们假设每个 .out 文件都是一个整体，作为一个 Block 返回
+            // 模拟产生一个符合 WMass 业务标题的块
             yield return new RawDataBlock(
-                blockName: $"Block_{fileName}", // 这里的名称要和卡片里的 TargetBlockName 对应
-                lines: lines,
-                startLine: 1,
-                filePath: filePath
-            );
+                "各层刚心、偏心率、相邻层侧移刚度比等计算信息",
+                new[] { "模拟数据行1", "模拟数据行2" },
+                1,
+                filePath);
+
+            // 模拟产生第二个块
+            yield return new RawDataBlock(
+                "楼层位移总结",
+                new[] { "位移数据行1" },
+                10,
+                filePath);
         }
     }
 }

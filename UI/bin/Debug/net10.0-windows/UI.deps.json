@@ -9,7 +9,8 @@
       "UI/1.0.0": {
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
-          "FileProcessor": "1.0.0"
+          "FileProcessor": "1.0.0",
+          "WMass": "1.0.0"
         },
         "runtime": {
           "UI.dll": {}
@@ -26,6 +27,17 @@
       "FileProcessor/1.0.0": {
         "runtime": {
           "FileProcessor.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "WMass/1.0.0": {
+        "dependencies": {
+          "FileProcessor": "1.0.0"
+        },
+        "runtime": {
+          "WMass.dll": {
             "assemblyVersion": "1.0.0.0",
             "fileVersion": "1.0.0.0"
           }
@@ -47,6 +59,11 @@
       "hashPath": "communitytoolkit.mvvm.8.4.0.nupkg.sha512"
     },
     "FileProcessor/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "WMass/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
