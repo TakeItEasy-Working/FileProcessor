@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using FileProcessor.Core.Contracts;
 using FileProcessor.Core.Models;
 using System.Collections.ObjectModel;
+using System.Linq;
 using UI.Models;
 
 namespace UI.ViewModels
@@ -25,9 +26,9 @@ namespace UI.ViewModels
 
         /// <summary> 
         /// 卡片的工作模式：
-        /// SyncGlobal - 强制跟随主界面选中的版本；
-        /// FollowLatest - 永远显示该数据块最新的解析结果；
-        /// ManualLock - 锁定在某个特定版本不随动。
+        /// FollowLatest - 永远显示最新解析的数据
+        /// SyncGlobal   - 跟随 MainViewModel 的全局版本切换
+        /// ManualLock   - 锁定在某个特定版本，不随外部变化
         /// </summary>
         [ObservableProperty] private CardWorkMode _mode = CardWorkMode.SyncGlobal;
 
@@ -65,6 +66,9 @@ namespace UI.ViewModels
 
             // 订阅内核数据更新事件
             _snapshotManager.DataUpdated += OnDataReceived;
+
+            // 新增：初始化后立即尝试拉取一次存量数据
+            RefreshData();
         }
 
         /// <summary>
@@ -77,13 +81,13 @@ namespace UI.ViewModels
 
         /// <summary>
         /// 当用户更改了目标数据块名称时触发。
-        /// 修复 CS8826：去掉参数的可空标记或确保与生成的签名一致。
+        /// 修复 CS8826：确保签名与 ObservableProperty 生成的 partial 方法一致。
         /// </summary>
         partial void OnTargetBlockNameChanged(string? value) => RefreshData();
 
         /// <summary>
         /// 当用户更改了来源文件名时触发。
-        /// 修复 CS8826：去掉参数的可空标记或确保与生成的签名一致。
+        /// 修复 CS8826：确保签名与 ObservableProperty 生成的 partial 方法一致。
         /// </summary>
         partial void OnSourceFileNameChanged(string? value) => RefreshData();
 
@@ -104,20 +108,22 @@ namespace UI.ViewModels
             // 1. 确定目标版本 ID
             string? versionId = Mode switch
             {
-                // 全局同步模式：使用主界面当前拉杆或列表选中的那个版本
+                // 全局同步模式：使用主界面当前选中的版本 ID
                 CardWorkMode.SyncGlobal => _mainVM.SelectedVersionId,
 
                 // 跟随最新模式：从主界面的版本列表中取第一个（即最新的）
                 CardWorkMode.FollowLatest => _mainVM.AllVersionIds.FirstOrDefault(),
 
-                // 锁定模式：保持当前 CurrentData 的版本不变
-                _ => CurrentData?.VersionId
+                // 锁定模式：保持当前数据的版本 ID 不变
+                CardWorkMode.ManualLock => CurrentData?.VersionId,
+
+                _ => _mainVM.SelectedVersionId
             };
 
             // 2. 执行检索
             if (versionId != null)
             {
-                // 修复逻辑：通过调用 MainViewModel 提供的桥接方法获取 UI 层缓存的数据
+                // 通过调用 MainViewModel 提供的桥接方法获取 UI 层缓存的数据
                 var snapshot = _mainVM.TryGetCachedSnapshot(versionId, TargetBlockName);
 
                 if (snapshot != null)
@@ -139,14 +145,15 @@ namespace UI.ViewModels
                 // 逻辑判断：是否需要立即更新 UI
                 bool shouldUpdate = Mode switch
                 {
-                    CardWorkMode.FollowLatest => true, // 最新模式必更
-                    CardWorkMode.SyncGlobal => result.VersionId == _mainVM.SelectedVersionId, // 仅当新数据属于当前选中的全局版本时才更
+                    CardWorkMode.FollowLatest => true, // 最新模式始终更新
+                    CardWorkMode.SyncGlobal => result.VersionId == _mainVM.SelectedVersionId, // 仅同步全局选中的版本
+                    CardWorkMode.ManualLock => false, // 锁定模式不随推送更新
                     _ => false
                 };
 
                 if (shouldUpdate)
                 {
-                    // 使用 Dispatcher 确保在 UI 线程刷新，因为 DataUpdated 事件通常来自内核后台线程
+                    // 使用 Dispatcher 确保在 UI 线程刷新，因为 DataUpdated 来自内核后台线程
                     System.Windows.Application.Current.Dispatcher.Invoke(() => RefreshData());
                 }
             }

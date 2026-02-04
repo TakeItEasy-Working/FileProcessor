@@ -153,20 +153,20 @@ namespace UI.ViewModels
             }
         }
 
-        /// <summary>
-        /// 在界面上新增一个分析卡片，并同步当前的全局资源列表。
-        /// </summary>
-        [RelayCommand]
-        private void AddCard()
-        {
-            var card = new DisplayCardViewModel(_snapshotManager, _versionCoordinator, this)
-            {
-                // 手动同步当前已发现的文件和块，确保新创建的卡片下拉列表不为空
-                AvailableFiles = new ObservableCollection<string>(this.AvailableFiles),
-                AvailableBlocks = new ObservableCollection<string>(this.AvailableBlocks)
-            };
-            DisplayCards.Add(card);
-        }
+        ///// <summary>
+        ///// 在界面上新增一个分析卡片，并同步当前的全局资源列表。
+        ///// </summary>
+        //[RelayCommand]
+        //private void AddCard()
+        //{
+        //    var card = new DisplayCardViewModel(_snapshotManager, _versionCoordinator, this)
+        //    {
+        //        // 手动同步当前已发现的文件和块，确保新创建的卡片下拉列表不为空
+        //        AvailableFiles = new ObservableCollection<string>(this.AvailableFiles),
+        //        AvailableBlocks = new ObservableCollection<string>(this.AvailableBlocks)
+        //    };
+        //    DisplayCards.Add(card);
+        //}
 
         /// <summary>
         /// 移除指定的分析卡片。
@@ -216,6 +216,34 @@ namespace UI.ViewModels
                         if (!card.AvailableBlocks.Contains(res.BlockName)) card.AvailableBlocks.Add(res.BlockName);
                 }
             });
+        }
+
+        partial void OnSelectedVersionIdChanged(string? value)
+        {
+            if (value == null) return;
+
+            // 通知所有处于 SyncGlobal 模式的卡片刷新数据
+            foreach (var card in DisplayCards)
+            {
+                if (card.Mode == UI.Models.CardWorkMode.SyncGlobal)
+                {
+                    // 注意：由于 RefreshData 是私有的，你可能需要在卡片中将其改为 internal 或 public
+                    // 或者通过卡片订阅一个全局事件。
+                    card.GetType().GetMethod("RefreshData",
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)
+                        ?.Invoke(card, null);
+                }
+            }
+        }
+
+        [RelayCommand]
+        private void AddCard()
+        {
+            // 传入 this (MainViewModel) 以便卡片构造时能引用
+            var card = new DisplayCardViewModel(_snapshotManager, _versionCoordinator, this);
+
+            // 修正：不再在这里 new 集合，而是在卡片构造函数内部处理
+            DisplayCards.Add(card);
         }
 
         /// <summary>

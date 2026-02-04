@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:UI"
         xmlns:vm="clr-namespace:UI.ViewModels"
         xmlns:helpers="clr-namespace:UI.Helpers"
         xmlns:models="clr-namespace:UI.Models"
@@ -12,157 +13,185 @@
         FontFamily="Microsoft YaHei">
 
     <Window.Resources>
-        <!-- 引入系统自带的布尔转可见性转换器 -->
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <!-- 注册宽度转换器 -->
+        <helpers:DoubleToGridLengthConverter x:Key="DoubleToGridLengthConverter"/>
+
+        <!-- 卡片容器样式：水平排列且靠上对齐，防止高度被强制拉伸 -->
+        <Style x:Key="CardItemsControlStyle" TargetType="ItemsControl">
+            <Setter Property="ItemsPanel">
+                <Setter.Value>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Top" Margin="10"/>
+                    </ItemsPanelTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
-    <Grid>
+    <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- 顶部工具栏 -->
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
-            <!-- 看板主体 -->
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- 顶部工具栏 -->
-        <Border Grid.Row="0" Background="#2C3E50">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.3"/>
-            </Border.Effect>
-            <!-- 使用 Grid 代替 DockPanel 以获得更好的布局控制 -->
-            <Grid Margin="20,12">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
+        <!-- 1. 顶部工具栏 -->
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
+            <TextBlock Text="项目路径:" VerticalAlignment="Center" Margin="0,0,5,0" Foreground="#555"/>
+            <TextBox Text="{Binding ProjectRootPath, UpdateSourceTrigger=PropertyChanged}" 
+                     Width="500" Margin="0,0,10,0" VerticalContentAlignment="Center" Padding="5,2"/>
+            <Button Content="..." Command="{Binding BrowseFolderCommand}" Width="40" Margin="0,0,15,0"/>
 
-                <!-- 左侧：项目选择 -->
-                <StackPanel Orientation="Horizontal" Grid.Column="0">
-                    <Button Command="{Binding BrowseFolderCommand}" Content="📁 选择项目" 
-                            Padding="15,6" Background="#3498DB" Foreground="White" BorderThickness="0" Cursor="Hand"/>
-                    <Border Background="#34495E" CornerRadius="4" Margin="10,0" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding ProjectRootPath, TargetNullValue='请选择 YJK 项目根目录...'}" 
-                                   Margin="12,6" Foreground="#BDC3C7" VerticalAlignment="Center" FontSize="12"/>
-                    </Border>
-                </StackPanel>
+            <Rectangle Width="1" Fill="#DDD" Margin="5,5,15,5"/>
 
-                <!-- 右侧：全局控制 -->
-                <StackPanel Orientation="Horizontal" Grid.Column="1">
-                    <TextBlock Text="全局同步版本:" Foreground="White" VerticalAlignment="Center" Margin="10,0"/>
-                    <ComboBox ItemsSource="{Binding AllVersionIds}" 
-                              SelectedItem="{Binding SelectedVersionId}" 
-                              Width="180" Height="30" VerticalContentAlignment="Center"/>
+            <Button Content="+ 新增分析卡片" Command="{Binding AddCardCommand}" 
+                    Background="#2196F3" Foreground="White" Padding="20,6" BorderThickness="0" Cursor="Hand">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="4"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </StackPanel>
 
-                    <Rectangle Width="1" Fill="#5D6D7E" Margin="15,5"/>
+        <!-- 2. 进度指示器 -->
+        <ProgressBar Grid.Row="1" Height="2" IsIndeterminate="{Binding IsBusy}" 
+                     Background="Transparent" BorderThickness="0" Foreground="#2196F3"
+                     Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
-                    <Button Command="{Binding AddCardCommand}" Content="+ 添加数据卡片" 
-                            Padding="15,6" Background="#27AE60" Foreground="White" BorderThickness="0" Margin="0,0,10,0" Cursor="Hand"/>
-                    <Button Command="{Binding SimulateRunCommand}" Content="⚙ 模拟计算" 
-                            Padding="15,6" Background="#E67E22" Foreground="White" BorderThickness="0" Cursor="Hand"/>
-                </StackPanel>
-            </Grid>
-        </Border>
-
-        <!-- 主体看板内容 -->
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-            <ItemsControl ItemsSource="{Binding DisplayCards}" Margin="10">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-
+        <!-- 3. 主工作区：支持横向滚动 -->
+        <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding DisplayCards}" Style="{StaticResource CardItemsControlStyle}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type vm:DisplayCardViewModel}">
-                        <Border Width="{Binding CardWidth}" Height="550" 
-                                Background="White" CornerRadius="8" Margin="10" 
-                                BorderBrush="#DCDDE1" BorderThickness="1">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="12" ShadowDepth="3" Opacity="0.08"/>
-                            </Border.Effect>
+                        <!-- 宽度控制 Grid -->
+                        <Grid Margin="8,0" VerticalAlignment="Top">
+                            <Grid.ColumnDefinitions>
+                                <!-- 绑定双向宽度 -->
+                                <ColumnDefinition Width="{Binding CardWidth, Mode=TwoWay, Converter={StaticResource DoubleToGridLengthConverter}}"/>
+                            </Grid.ColumnDefinitions>
 
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <!-- 标题栏 -->
-                                    <RowDefinition Height="Auto"/>
-                                    <!-- 配置栏 -->
-                                    <RowDefinition Height="*"/>
-                                    <!-- 数据展示 -->
-                                </Grid.RowDefinitions>
+                            <!-- 卡片主体内容 -->
+                            <Border Grid.Column="0" BorderBrush="#DDE" BorderThickness="1" 
+                                    Padding="15" CornerRadius="8" Background="White"
+                                    VerticalAlignment="Top">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="15" ShadowDepth="2" Opacity="0.05"/>
+                                </Border.Effect>
 
-                                <!-- 1. 标题栏 -->
-                                <Border Grid.Row="0" Background="#F8F9FA" CornerRadius="8,8,0,0">
-                                    <DockPanel Margin="12,10">
-                                        <Button DockPanel.Dock="Right" Command="{Binding CloseCommand}" 
-                                                Content="✕" Background="Transparent" BorderThickness="0" 
-                                                Foreground="#95A5A6" Cursor="Hand" Width="24" FontWeight="Bold"/>
-                                        <TextBlock Text="{Binding TargetBlockName, FallbackValue='新卡片 (未配置)'}" 
-                                                   FontWeight="Bold" Foreground="#34495E" VerticalAlignment="Center"/>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <!-- 0: Header -->
+                                        <RowDefinition Height="Auto"/>
+                                        <!-- 1: Config Line 1 -->
+                                        <RowDefinition Height="Auto"/>
+                                        <!-- 2: Config Line 2 -->
+                                        <RowDefinition Height="Auto"/>
+                                        <!-- 3: Info Bar -->
+                                        <RowDefinition Height="*"/>
+                                        <!-- 4: Table -->
+                                    </Grid.RowDefinitions>
+
+                                    <!-- 卡片头部 -->
+                                    <DockPanel Grid.Row="0" Margin="0,0,0,12">
+                                        <Button DockPanel.Dock="Right" Content="✕" 
+                                                Command="{Binding CloseCommand}"
+                                                Background="Transparent" BorderThickness="0" Foreground="#BBB" 
+                                                FontSize="14" Cursor="Hand" VerticalAlignment="Top"/>
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding TargetBlockName, FallbackValue='请选择数据块'}" 
+                                                       FontWeight="Bold" Foreground="#333" FontSize="15"
+                                                       TextTrimming="CharacterEllipsis"/>
+                                            <TextBlock Text="{Binding SourceFileName, StringFormat='来源: {0}', FallbackValue='未选文件'}" 
+                                                       FontSize="11" Foreground="#999" Margin="0,2,0,0"/>
+                                        </StackPanel>
                                     </DockPanel>
-                                </Border>
 
-                                <!-- 2. 配置栏 -->
-                                <Border Grid.Row="1" BorderBrush="#F1F2F6" BorderThickness="0,0,0,1">
-                                    <UniformGrid Columns="3" Margin="12">
-                                        <StackPanel Margin="2">
-                                            <TextBlock Text="来源文件" FontSize="11" Foreground="#95A5A6" Margin="0,0,0,4"/>
+                                    <!-- 配置行 1 -->
+                                    <UniformGrid Grid.Row="1" Columns="2" Margin="0,0,0,8">
+                                        <StackPanel Margin="0,0,5,0">
+                                            <TextBlock Text="切换文件" FontSize="10" Foreground="#AAA" Margin="0,0,0,3"/>
                                             <ComboBox ItemsSource="{Binding AvailableFiles}" SelectedItem="{Binding SourceFileName}"/>
                                         </StackPanel>
-                                        <StackPanel Margin="2">
-                                            <TextBlock Text="数据块" FontSize="11" Foreground="#95A5A6" Margin="0,0,0,4"/>
-                                            <ComboBox ItemsSource="{Binding AvailableBlocks}" SelectedItem="{Binding TargetBlockName}"/>
-                                        </StackPanel>
-                                        <StackPanel Margin="2">
-                                            <TextBlock Text="模式" FontSize="11" Foreground="#95A5A6" Margin="0,0,0,4"/>
+                                        <StackPanel Margin="5,0,0,0">
+                                            <TextBlock Text="模式" FontSize="10" Foreground="#AAA" Margin="0,0,0,3"/>
                                             <ComboBox SelectedValue="{Binding Mode}" SelectedValuePath="Tag">
-                                                <ComboBoxItem Content="⚡ 追随最新" Tag="{x:Static models:CardWorkMode.FollowLatest}"/>
-                                                <ComboBoxItem Content="🔗 同步全局" Tag="{x:Static models:CardWorkMode.SyncGlobal}"/>
-                                                <ComboBoxItem Content="🔒 锁定版本" Tag="{x:Static models:CardWorkMode.ManualLock}"/>
+                                                <ComboBoxItem Content="跟随最新" Tag="{x:Static models:CardWorkMode.FollowLatest}"/>
+                                                <ComboBoxItem Content="全局同步" Tag="{x:Static models:CardWorkMode.SyncGlobal}"/>
+                                                <ComboBoxItem Content="锁定版本" Tag="{x:Static models:CardWorkMode.ManualLock}"/>
                                             </ComboBox>
                                         </StackPanel>
                                     </UniformGrid>
-                                </Border>
 
-                                <!-- 3. 数据网格 -->
-                                <Grid Grid.Row="2" Margin="10">
-                                    <DataGrid Background="Transparent" BorderThickness="0"
-                                              CanUserAddRows="False" IsReadOnly="True"
-                                              AutoGenerateColumns="False"
+                                    <!-- 配置行 2 -->
+                                    <StackPanel Grid.Row="2" Margin="0,0,0,12">
+                                        <TextBlock Text="数据项" FontSize="10" Foreground="#AAA" Margin="0,0,0,3"/>
+                                        <ComboBox ItemsSource="{Binding AvailableBlocks}" SelectedItem="{Binding TargetBlockName}"/>
+                                    </StackPanel>
+
+                                    <!-- 状态条 -->
+                                    <Border Grid.Row="3" Background="#F1F3F5" Padding="10,6" CornerRadius="4" Margin="0,0,0,12">
+                                        <DockPanel>
+                                            <TextBlock Text="数据版本:" FontSize="10" Foreground="#777" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding CurrentData.VersionId, FallbackValue='等待扫描...'}" 
+                                                       FontSize="10" HorizontalAlignment="Right" FontWeight="Bold" Foreground="#444"/>
+                                        </DockPanel>
+                                    </Border>
+
+                                    <!-- 数据表格 -->
+                                    <DataGrid Grid.Row="4"
+                                              AutoGenerateColumns="False" 
+                                              CanUserAddRows="False"
+                                              IsReadOnly="True"
+                                              Background="White"
+                                              BorderThickness="0"
+                                              helpers:DataGridHelper.BindableColumns="{Binding CurrentData}"
+                                              HeadersVisibility="Column"
                                               GridLinesVisibility="Horizontal"
-                                              HorizontalGridLinesBrush="#F1F2F6"
-                                              helpers:DataGridHelper.BindableColumns="{Binding CurrentData}">
+                                              HorizontalGridLinesBrush="#F0F0F0"
+                                              HorizontalScrollBarVisibility="Auto"
+                                              VerticalScrollBarVisibility="Auto"
+                                              MaxHeight="500">
                                         <DataGrid.ColumnHeaderStyle>
                                             <Style TargetType="DataGridColumnHeader">
-                                                <Setter Property="Background" Value="#F8F9FA"/>
-                                                <Setter Property="Padding" Value="8,5"/>
+                                                <Setter Property="Background" Value="#F8F9FB"/>
+                                                <Setter Property="Foreground" Value="#666"/>
+                                                <Setter Property="Padding" Value="10,8"/>
+                                                <Setter Property="FontSize" Value="11"/>
                                                 <Setter Property="FontWeight" Value="SemiBold"/>
                                                 <Setter Property="BorderThickness" Value="0,0,0,1"/>
-                                                <Setter Property="BorderBrush" Value="#DCDDE1"/>
+                                                <Setter Property="BorderBrush" Value="#EEE"/>
                                             </Style>
                                         </DataGrid.ColumnHeaderStyle>
                                     </DataGrid>
-
-                                    <!-- 缺省状态 -->
-                                    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
-                                                Visibility="{Binding CurrentData, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}">
-                                        <TextBlock Text="等待数据推送..." Foreground="#BDC3C7" FontSize="14" HorizontalAlignment="Center"/>
-                                    </StackPanel>
                                 </Grid>
+                            </Border>
 
-                                <!-- 右侧拉伸手柄 -->
-                                <Thumb Width="4" HorizontalAlignment="Right" Grid.RowSpan="3" Cursor="SizeWE" Background="Transparent">
-                                    <Thumb.Style>
-                                        <Style TargetType="Thumb">
-                                            <EventSetter Event="DragDelta" Handler="OnCardResize"/>
-                                        </Style>
-                                    </Thumb.Style>
-                                </Thumb>
-                            </Grid>
-                        </Border>
+                            <!-- 原生拖动条：放置在 Border 边缘 -->
+                            <GridSplitter Grid.Column="0" Width="6" 
+                                          HorizontalAlignment="Right" 
+                                          Background="Transparent" 
+                                          ShowsPreview="True" />
+                        </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
+
+        <!-- 4. 底部状态栏 -->
+        <StatusBar Grid.Row="3" Background="#E9ECEF" BorderThickness="0,1,0,0" BorderBrush="#DEE2E6">
+            <StatusBarItem>
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse Width="8" Height="8" Fill="#4CAF50" Margin="5,0"/>
+                    <TextBlock Text="{Binding StatusText}" FontSize="11" VerticalAlignment="Center" Foreground="#444"/>
+                </StackPanel>
+            </StatusBarItem>
+            <StatusBarItem HorizontalAlignment="Right">
+                <TextBlock Text="内核版本: 1.2.0-Sentinel" FontSize="10" Foreground="#999" Margin="0,0,10,0"/>
+            </StatusBarItem>
+        </StatusBar>
     </Grid>
 </Window>
