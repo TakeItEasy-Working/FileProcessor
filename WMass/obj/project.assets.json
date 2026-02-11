@@ -2,11 +2,11 @@
   "version": 3,
   "targets": {
     "net10.0": {
-      "FileProcessor/1.0.0": {
+      "FileProcessor.Core/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v10.0",
         "compile": {
-          "bin/placeholder/FileProcessor.dll": {}
+          "bin/placeholder/FileProcessor.Core.dll": {}
         },
         "runtime": {
           "bin/placeholder/_._": {}
@@ -15,15 +15,15 @@
     }
   },
   "libraries": {
-    "FileProcessor/1.0.0": {
+    "FileProcessor.Core/1.0.0": {
       "type": "project",
-      "path": "../FileProcessor/FileProcessor.csproj",
-      "msbuildProject": "../FileProcessor/FileProcessor.csproj"
+      "path": "../FileProcessor.Core/FileProcessor.Core.csproj",
+      "msbuildProject": "../FileProcessor.Core/FileProcessor.Core.csproj"
     }
   },
   "projectFileDependencyGroups": {
     "net10.0": [
-      "FileProcessor >= 1.0.0"
+      "FileProcessor.Core >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -33,9 +33,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\3.Source\\FileProcessor\\WMass\\WMass.csproj",
-      "projectName": "WMass",
-      "projectPath": "D:\\3.Source\\FileProcessor\\WMass\\WMass.csproj",
+      "projectUniqueName": "D:\\3.Source\\FileProcessor\\WMass\\WMass.Plugin.csproj",
+      "projectName": "WMass.Plugin",
+      "projectPath": "D:\\3.Source\\FileProcessor\\WMass\\WMass.Plugin.csproj",
       "packagesPath": "C:\\Users\\liuyu\\.nuget\\packages\\",
       "outputPath": "D:\\3.Source\\FileProcessor\\WMass\\obj\\",
       "projectStyle": "PackageReference",
@@ -58,8 +58,8 @@
         "net10.0": {
           "targetAlias": "net10.0",
           "projectReferences": {
-            "D:\\3.Source\\FileProcessor\\FileProcessor\\FileProcessor.csproj": {
-              "projectPath": "D:\\3.Source\\FileProcessor\\FileProcessor\\FileProcessor.csproj",
+            "D:\\3.Source\\FileProcessor\\FileProcessor.Core\\FileProcessor.Core.csproj": {
+              "projectPath": "D:\\3.Source\\FileProcessor\\FileProcessor.Core\\FileProcessor.Core.csproj",
               "excludeAssets": "runtime"
             }
           }

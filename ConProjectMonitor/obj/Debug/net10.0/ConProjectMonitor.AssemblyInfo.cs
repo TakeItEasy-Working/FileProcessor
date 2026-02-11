@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ConProjectMonitor")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+194c5aedb83aaf2f307b101c2a19ee964dff7c9f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+85461cd3a4b7437568d6c1d38870a653bd654186")]
 [assembly: System.Reflection.AssemblyProductAttribute("ConProjectMonitor")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ConProjectMonitor")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

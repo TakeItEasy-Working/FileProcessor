@@ -1,0 +1,13 @@
+D:\3.Source\FileProcessor\WDisp.Plugin\bin\Debug\net10.0\WDisp.Plugin.deps.json
+D:\3.Source\FileProcessor\WDisp.Plugin\bin\Debug\net10.0\WDisp.Plugin.dll
+D:\3.Source\FileProcessor\WDisp.Plugin\bin\Debug\net10.0\WDisp.Plugin.pdb
+D:\3.Source\FileProcessor\WDisp.Plugin\obj\Debug\net10.0\WDisp.Plugin.csproj.AssemblyReference.cache
+D:\3.Source\FileProcessor\WDisp.Plugin\obj\Debug\net10.0\WDisp.Plugin.GeneratedMSBuildEditorConfig.editorconfig
+D:\3.Source\FileProcessor\WDisp.Plugin\obj\Debug\net10.0\WDisp.Plugin.AssemblyInfoInputs.cache
+D:\3.Source\FileProcessor\WDisp.Plugin\obj\Debug\net10.0\WDisp.Plugin.AssemblyInfo.cs
+D:\3.Source\FileProcessor\WDisp.Plugin\obj\Debug\net10.0\WDisp.Plugin.csproj.CoreCompileInputs.cache
+D:\3.Source\FileProcessor\WDisp.Plugin\obj\Debug\net10.0\WDisp.Plugin.sourcelink.json
+D:\3.Source\FileProcessor\WDisp.Plugin\obj\Debug\net10.0\WDisp.Plugin.dll
+D:\3.Source\FileProcessor\WDisp.Plugin\obj\Debug\net10.0\refint\WDisp.Plugin.dll
+D:\3.Source\FileProcessor\WDisp.Plugin\obj\Debug\net10.0\WDisp.Plugin.pdb
+D:\3.Source\FileProcessor\WDisp.Plugin\obj\Debug\net10.0\ref\WDisp.Plugin.dll

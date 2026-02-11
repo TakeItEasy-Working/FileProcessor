@@ -1,0 +1,16 @@
+D:\3.Source\FileProcessor\FileProcessor.Engine\bin\Debug\net10.0\FileProcessor.Engine.deps.json
+D:\3.Source\FileProcessor\FileProcessor.Engine\bin\Debug\net10.0\FileProcessor.Engine.dll
+D:\3.Source\FileProcessor\FileProcessor.Engine\bin\Debug\net10.0\FileProcessor.Engine.pdb
+D:\3.Source\FileProcessor\FileProcessor.Engine\bin\Debug\net10.0\FileProcessor.Core.dll
+D:\3.Source\FileProcessor\FileProcessor.Engine\bin\Debug\net10.0\FileProcessor.Core.pdb
+D:\3.Source\FileProcessor\FileProcessor.Engine\obj\Debug\net10.0\FileProcessor.Engine.csproj.AssemblyReference.cache
+D:\3.Source\FileProcessor\FileProcessor.Engine\obj\Debug\net10.0\FileProcessor.Engine.GeneratedMSBuildEditorConfig.editorconfig
+D:\3.Source\FileProcessor\FileProcessor.Engine\obj\Debug\net10.0\FileProcessor.Engine.AssemblyInfoInputs.cache
+D:\3.Source\FileProcessor\FileProcessor.Engine\obj\Debug\net10.0\FileProcessor.Engine.AssemblyInfo.cs
+D:\3.Source\FileProcessor\FileProcessor.Engine\obj\Debug\net10.0\FileProcessor.Engine.csproj.CoreCompileInputs.cache
+D:\3.Source\FileProcessor\FileProcessor.Engine\obj\Debug\net10.0\FileProcessor.Engine.sourcelink.json
+D:\3.Source\FileProcessor\FileProcessor.Engine\obj\Debug\net10.0\FileProc.DD0D976E.Up2Date
+D:\3.Source\FileProcessor\FileProcessor.Engine\obj\Debug\net10.0\FileProcessor.Engine.dll
+D:\3.Source\FileProcessor\FileProcessor.Engine\obj\Debug\net10.0\refint\FileProcessor.Engine.dll
+D:\3.Source\FileProcessor\FileProcessor.Engine\obj\Debug\net10.0\FileProcessor.Engine.pdb
+D:\3.Source\FileProcessor\FileProcessor.Engine\obj\Debug\net10.0\ref\FileProcessor.Engine.dll

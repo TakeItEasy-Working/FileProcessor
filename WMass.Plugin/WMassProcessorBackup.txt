@@ -1,0 +1,150 @@
+﻿using FileProcessor.Core.Attributes;
+using FileProcessor.Core.Contracts;
+using FileProcessor.Core.Models;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+
+namespace WMass.Plugin
+{
+    [BlockProcessor("各层刚心、偏心率、相邻层侧移刚度比等计算信息")]
+    public class WMassProcessor : IBlockProcessor
+    {
+        public string TargetBlockName => "各层刚心、偏心率、相邻层侧移刚度比等计算信息";
+        public int Priority => 10;
+
+        public bool CanProcess(string blockName) => blockName.Contains("刚心");
+
+        public ProcessedResult Process(RawDataBlock block)
+        {
+            var floorRecords = new List<Dictionary<string, string>>();
+            var summaryData = new List<Dictionary<string, string>>();
+            var allKeys = new HashSet<string> { "Floor", "Tower" };
+
+            // 缓冲区，用于存储当前“段落”（由 ---- 分割）
+            List<string> buffer = new List<string>();
+
+            foreach (var rawLine in block.Lines)
+            {
+                string line = rawLine.Trim();
+
+                // 遇到分隔线：结算当前 Buffer
+                if (line.Contains("----"))
+                {
+                    // 尝试解析缓冲区内容（可能是楼层数据，也可能是头部摘要）
+                    ParseBuffer(buffer, floorRecords, summaryData, allKeys);
+                    buffer.Clear();
+                    continue;
+                }
+
+                if (line.Contains("最小刚度比"))
+                {
+                    ParseSpecificSummary(line, summaryData);
+                    continue; 
+                }
+
+                if (!string.IsNullOrWhiteSpace(line))
+                {
+                    buffer.Add(line);
+                }
+            }
+            
+            // 处理残留 Buffer
+            ParseBuffer(buffer, floorRecords, summaryData, allKeys);
+
+            return new ProcessedResult
+            {
+                BlockName = block.BlockName,
+                DisplayName = "刚心及刚度比详情",
+                Category = "计算信息",
+                Rows = floorRecords,
+                Columns = allKeys.Select(k => new ColumnDefinition(k, k)).ToList(),
+                Metadata = new Dictionary<string, object>
+                {
+                    { "StiffnessSummary", summaryData }
+                }
+            };
+        }
+
+        /// <summary>
+        /// 统一解析缓冲区：智能判定是“楼层数据”还是“摘要信息”
+        /// </summary>
+        private void ParseBuffer(List<string> lines, 
+                               List<Dictionary<string, string>> records, 
+                               List<Dictionary<string, string>> summary,
+                               HashSet<string> keys)
+        {
+            if (lines.Count == 0) return;
+
+            // 判定逻辑 A: 包含 Floor No. -> 楼层数据
+            if (lines.Any(l => l.Contains("Floor No.")))
+            {
+                var row = new Dictionary<string, string>();
+                foreach (var line in lines)
+                {
+                    // 1. 提取身份 ID
+                    if (line.Contains("Floor No."))
+                    {
+                        var floorMatch = Regex.Match(line, @"Floor No\.\s*(?<v>\d+)");
+                        var towerMatch = Regex.Match(line, @"Tower No\.\s*(?<v>\d+)");
+                        if (floorMatch.Success) row["Floor"] = floorMatch.Groups["v"].Value;
+                        if (towerMatch.Success) row["Tower"] = towerMatch.Groups["v"].Value;
+                    }
+
+                    // 2. 提取数据 Key=Value
+                    ExtractKeyValues(line, row, keys);
+                }
+                if (row.Count > 0) records.Add(row);
+            }
+            // 判定逻辑 B: 不包含 Floor No. 但包含等号 -> 认为是摘要信息 (Summary)
+            // 这就是那些从标题区域下沉下来的行
+            else if (lines.Any(l => l.Contains("=")))
+            {
+                foreach (var line in lines)
+                {
+                    // 将每一行里的 Key=Value 提取出来作为一条摘要记录
+                    var matches = Regex.Matches(line, @"(?<key>[^=]+)=(?<value>[^=]+)(?:\s|$)");
+                    foreach (Match m in matches)
+                    {
+                        string k = m.Groups["key"].Value.Trim();
+                        string v = m.Groups["value"].Value.Trim();
+                        if (!string.IsNullOrEmpty(k))
+                        {
+                            summary.Add(new Dictionary<string, string> {
+                                { "描述", k },
+                                { "数值", v }
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        private void ExtractKeyValues(string line, Dictionary<string, string> row, HashSet<string> keys)
+        {
+             var kvMatches = Regex.Matches(line, @"(?<key>[A-Za-z0-9_]+)\s*=\s*(?<value>[^ \t=]+)");
+             foreach (Match m in kvMatches)
+             {
+                 string k = m.Groups["key"].Value.Trim();
+                 string v = m.Groups["value"].Value.Trim();
+                 if (k.Length > 1) 
+                 {
+                     row[k] = v;
+                     keys.Add(k);
+                 }
+             }
+        }
+
+        private void ParseSpecificSummary(string line, List<Dictionary<string, string>> summary)
+        {
+            var match = Regex.Match(line, @"(?<key>.*方向最小刚度比):?\s*(?<val>[0-9\.]+)");
+            if (match.Success)
+            {
+                summary.Add(new Dictionary<string, string> {
+                    { "描述", match.Groups["key"].Value.Trim() },
+                    { "数值", match.Groups["val"].Value.Trim() }
+                });
+            }
+        }
+    }
+}

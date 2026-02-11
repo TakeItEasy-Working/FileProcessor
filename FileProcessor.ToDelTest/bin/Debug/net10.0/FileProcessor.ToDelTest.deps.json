@@ -1,0 +1,125 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v10.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v10.0": {
+      "FileProcessor.ToDelTest/1.0.0": {
+        "dependencies": {
+          "FileProcessor.Core": "1.0.0",
+          "FileProcessor.Engine": "1.0.0",
+          "FileProcessor.Infrastructure": "1.0.0",
+          "FileProcessor.Mediator": "1.0.0",
+          "WDisp.Plugin": "1.0.0",
+          "WMass.Plugin": "1.0.0"
+        },
+        "runtime": {
+          "FileProcessor.ToDelTest.dll": {}
+        }
+      },
+      "FileProcessor.Core/1.0.0": {
+        "runtime": {
+          "FileProcessor.Core.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "FileProcessor.Engine/1.0.0": {
+        "dependencies": {
+          "FileProcessor.Core": "1.0.0"
+        },
+        "runtime": {
+          "FileProcessor.Engine.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "FileProcessor.Infrastructure/1.0.0": {
+        "dependencies": {
+          "FileProcessor.Core": "1.0.0",
+          "FileProcessor.Engine": "1.0.0"
+        },
+        "runtime": {
+          "FileProcessor.Infrastructure.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "FileProcessor.Mediator/1.0.0": {
+        "dependencies": {
+          "FileProcessor.Core": "1.0.0"
+        },
+        "runtime": {
+          "FileProcessor.Mediator.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "WDisp.Plugin/1.0.0": {
+        "dependencies": {
+          "FileProcessor.Core": "1.0.0"
+        },
+        "runtime": {
+          "WDisp.Plugin.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "WMass.Plugin/1.0.0": {
+        "dependencies": {
+          "FileProcessor.Core": "1.0.0"
+        },
+        "runtime": {
+          "WMass.Plugin.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "FileProcessor.ToDelTest/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "FileProcessor.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "FileProcessor.Engine/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "FileProcessor.Infrastructure/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "FileProcessor.Mediator/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "WDisp.Plugin/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "WMass.Plugin/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

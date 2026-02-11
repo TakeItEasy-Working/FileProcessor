@@ -1,0 +1,13 @@
+D:\3.Source\FileProcessor\Mock.Plugin\bin\Debug\net10.0\Mock.Plugin.deps.json
+D:\3.Source\FileProcessor\Mock.Plugin\bin\Debug\net10.0\Mock.Plugin.dll
+D:\3.Source\FileProcessor\Mock.Plugin\bin\Debug\net10.0\Mock.Plugin.pdb
+D:\3.Source\FileProcessor\Mock.Plugin\obj\Debug\net10.0\Mock.Plugin.csproj.AssemblyReference.cache
+D:\3.Source\FileProcessor\Mock.Plugin\obj\Debug\net10.0\Mock.Plugin.GeneratedMSBuildEditorConfig.editorconfig
+D:\3.Source\FileProcessor\Mock.Plugin\obj\Debug\net10.0\Mock.Plugin.AssemblyInfoInputs.cache
+D:\3.Source\FileProcessor\Mock.Plugin\obj\Debug\net10.0\Mock.Plugin.AssemblyInfo.cs
+D:\3.Source\FileProcessor\Mock.Plugin\obj\Debug\net10.0\Mock.Plugin.csproj.CoreCompileInputs.cache
+D:\3.Source\FileProcessor\Mock.Plugin\obj\Debug\net10.0\Mock.Plugin.sourcelink.json
+D:\3.Source\FileProcessor\Mock.Plugin\obj\Debug\net10.0\Mock.Plugin.dll
+D:\3.Source\FileProcessor\Mock.Plugin\obj\Debug\net10.0\refint\Mock.Plugin.dll
+D:\3.Source\FileProcessor\Mock.Plugin\obj\Debug\net10.0\Mock.Plugin.pdb
+D:\3.Source\FileProcessor\Mock.Plugin\obj\Debug\net10.0\ref\Mock.Plugin.dll

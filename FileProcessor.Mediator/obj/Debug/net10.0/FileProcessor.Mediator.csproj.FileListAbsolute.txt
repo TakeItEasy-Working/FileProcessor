@@ -1,0 +1,16 @@
+D:\3.Source\FileProcessor\FileProcessor.Mediator\bin\Debug\net10.0\FileProcessor.Mediator.deps.json
+D:\3.Source\FileProcessor\FileProcessor.Mediator\bin\Debug\net10.0\FileProcessor.Mediator.dll
+D:\3.Source\FileProcessor\FileProcessor.Mediator\bin\Debug\net10.0\FileProcessor.Mediator.pdb
+D:\3.Source\FileProcessor\FileProcessor.Mediator\bin\Debug\net10.0\FileProcessor.Core.dll
+D:\3.Source\FileProcessor\FileProcessor.Mediator\bin\Debug\net10.0\FileProcessor.Core.pdb
+D:\3.Source\FileProcessor\FileProcessor.Mediator\obj\Debug\net10.0\FileProcessor.Mediator.csproj.AssemblyReference.cache
+D:\3.Source\FileProcessor\FileProcessor.Mediator\obj\Debug\net10.0\FileProcessor.Mediator.GeneratedMSBuildEditorConfig.editorconfig
+D:\3.Source\FileProcessor\FileProcessor.Mediator\obj\Debug\net10.0\FileProcessor.Mediator.AssemblyInfoInputs.cache
+D:\3.Source\FileProcessor\FileProcessor.Mediator\obj\Debug\net10.0\FileProcessor.Mediator.AssemblyInfo.cs
+D:\3.Source\FileProcessor\FileProcessor.Mediator\obj\Debug\net10.0\FileProcessor.Mediator.csproj.CoreCompileInputs.cache
+D:\3.Source\FileProcessor\FileProcessor.Mediator\obj\Debug\net10.0\FileProcessor.Mediator.sourcelink.json
+D:\3.Source\FileProcessor\FileProcessor.Mediator\obj\Debug\net10.0\FileProc.466BC9E9.Up2Date
+D:\3.Source\FileProcessor\FileProcessor.Mediator\obj\Debug\net10.0\FileProcessor.Mediator.dll
+D:\3.Source\FileProcessor\FileProcessor.Mediator\obj\Debug\net10.0\refint\FileProcessor.Mediator.dll
+D:\3.Source\FileProcessor\FileProcessor.Mediator\obj\Debug\net10.0\FileProcessor.Mediator.pdb
+D:\3.Source\FileProcessor\FileProcessor.Mediator\obj\Debug\net10.0\ref\FileProcessor.Mediator.dll
