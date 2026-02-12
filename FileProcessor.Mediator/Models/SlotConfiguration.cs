@@ -1,39 +1,47 @@
-﻿using System;
+﻿using FileProcessor.Core.Models;
+using System;
 
 namespace FileProcessor.Mediator.Models
 {
     /// <summary>
-    /// 插槽配置模型：定义 UI 上 8 个展示位各自“关注”的数据源。
+    /// 插槽状态枚举
+    /// </summary>
+    public enum SlotStatus
+    {
+        Empty,      // 未配置
+        Loading,    // 正在解析中
+        Ready,      // 数据就绪
+        NoData,     // 已配置但未找到匹配数据
+        Error       // 解析异常
+    }
+
+    /// <summary>
+    /// 增强型插槽配置：存储 UI 状态与过滤参数
     /// </summary>
     public class SlotConfiguration
     {
-        /// <summary>
-        /// 插槽索引（0-7）
-        /// </summary>
         public int SlotIndex { get; set; }
-
-        /// <summary>
-        /// 目标文件名（例如：wmass.out）
-        /// </summary>
         public string? TargetFileName { get; set; }
-
-        /// <summary>
-        /// 目标标准化数据块 ID（例如：WMass_StiffnessAndCentroid）
-        /// </summary>
         public string? TargetBlockName { get; set; }
 
         /// <summary>
-        /// 获取该插槽是否已配置了有效的数据源
+        /// 当前插槽选中的塔号（"All" 或具体数字）
         /// </summary>
-        public bool IsActive => !string.IsNullOrEmpty(TargetFileName) && !string.IsNullOrEmpty(TargetBlockName);
+        public string CurrentTower { get; set; } = "All";
 
         /// <summary>
-        /// 重置插槽配置为空
+        /// 当前插槽的业务状态
         /// </summary>
+        public SlotStatus Status { get; set; } = SlotStatus.Empty;
+
+        public bool IsActive => !string.IsNullOrEmpty(TargetFileName) && !string.IsNullOrEmpty(TargetBlockName);
+
         public void Clear()
         {
             TargetFileName = null;
             TargetBlockName = null;
+            CurrentTower = "All";
+            Status = SlotStatus.Empty;
         }
     }
 }

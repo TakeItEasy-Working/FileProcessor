@@ -112,6 +112,7 @@ namespace WDisp.Plugin
             return new ProcessedResult
             {
                 RawBlockName = block.BlockName,
+                StandardBlockName = StandardBlockName,
                 Rows = rows,
                 Category = "位移结果",
                 Columns = allColumns.Select(c => new ColumnDefinition(c, c)).ToList()

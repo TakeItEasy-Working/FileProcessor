@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("WDisp.Plugin")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+85461cd3a4b7437568d6c1d38870a653bd654186")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+143d828482676601145ff821ce671dfd6a9d6be1")]
 [assembly: System.Reflection.AssemblyProductAttribute("WDisp.Plugin")]
 [assembly: System.Reflection.AssemblyTitleAttribute("WDisp.Plugin")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

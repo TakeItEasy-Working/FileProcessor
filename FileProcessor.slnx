@@ -3,8 +3,6 @@
   <Project Path="D:/3.Source/FileProcessor/FileProcessor.Engine/FileProcessor.Engine.csproj" Id="075b9453-125b-4c98-9370-28b0cdedb921" />
   <Project Path="D:/3.Source/FileProcessor/FileProcessor.Infrastructure/FileProcessor.Infrastructure.csproj" Id="7a4afc1d-f796-409d-9e6e-126314cdde39" />
   <Project Path="D:/3.Source/FileProcessor/FileProcessor.Mediator/FileProcessor.Mediator.csproj" Id="26c7585b-d8ca-4aee-8834-8f1617130e8c" />
-  <Project Path="D:/3.Source/FileProcessor/FileProcessor.ToDelTest/FileProcessor.ToDelTest.csproj" Id="57d8b877-2006-47ee-b9aa-3a3f65c8b007" />
-  <Project Path="D:/3.Source/FileProcessor/FileProcessor.UTest/FileProcessor.UTest.csproj" Id="e63534bc-6743-441a-b1eb-8d166374c3fc" />
   <Project Path="D:/3.Source/FileProcessor/WDisp.Plugin/WDisp.Plugin.csproj" Id="4c6bd23e-ef0c-4431-8a0a-2a3c8c1b7802" />
   <Project Path="D:/3.Source/FileProcessor/WMass.Plugin/WMass.Plugin.csproj" Id="e98028e9-2382-4450-a2f1-c276184c2dc0" />
 </Solution>

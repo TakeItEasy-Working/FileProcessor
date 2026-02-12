@@ -1,36 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\3.Source\\FileProcessor\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{57D8B877-2006-47EE-B9AA-3A3F65C8B007}|FileProcessor.ToDelTest\\FileProcessor.ToDelTest.csproj|d:\\3.source\\fileprocessor\\fileprocessor.todeltest\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{57D8B877-2006-47EE-B9AA-3A3F65C8B007}|FileProcessor.ToDelTest\\FileProcessor.ToDelTest.csproj|solutionrelative:fileprocessor.todeltest\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{075B9453-125B-4C98-9370-28B0CDEDB921}|FileProcessor.Engine\\FileProcessor.Engine.csproj|d:\\3.source\\fileprocessor\\fileprocessor.engine\\runtime\\fileorchestrator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{075B9453-125B-4C98-9370-28B0CDEDB921}|FileProcessor.Engine\\FileProcessor.Engine.csproj|solutionrelative:fileprocessor.engine\\runtime\\fileorchestrator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E98028E9-2382-4450-A2F1-C276184C2DC0}|WMass.Plugin\\WMass.Plugin.csproj|d:\\3.source\\fileprocessor\\wmass.plugin\\wmasstemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E98028E9-2382-4450-A2F1-C276184C2DC0}|WMass.Plugin\\WMass.Plugin.csproj|solutionrelative:wmass.plugin\\wmasstemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{39741B43-2950-A009-D031-AD9D26A96F74}|FileProcessor.Core\\FileProcessor.Core.csproj|d:\\3.source\\fileprocessor\\fileprocessor.core\\infrastructure\\basefiletemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{39741B43-2950-A009-D031-AD9D26A96F74}|FileProcessor.Core\\FileProcessor.Core.csproj|solutionrelative:fileprocessor.core\\infrastructure\\basefiletemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{7A4AFC1D-F796-409D-9E6E-126314CDDE39}|FileProcessor.Infrastructure\\FileProcessor.Infrastructure.csproj|d:\\3.source\\fileprocessor\\fileprocessor.infrastructure\\services\\projectmonitorservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{7A4AFC1D-F796-409D-9E6E-126314CDDE39}|FileProcessor.Infrastructure\\FileProcessor.Infrastructure.csproj|solutionrelative:fileprocessor.infrastructure\\services\\projectmonitorservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{4C6BD23E-EF0C-4431-8A0A-2A3C8C1B7802}|WDisp.Plugin\\WDisp.Plugin.csproj|d:\\3.source\\fileprocessor\\wdisp.plugin\\wdisptemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{4C6BD23E-EF0C-4431-8A0A-2A3C8C1B7802}|WDisp.Plugin\\WDisp.Plugin.csproj|solutionrelative:wdisp.plugin\\wdisptemplate.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E63534BC-6743-441A-B1EB-8D166374C3FC}|FileProcessor.UTest\\FileProcessor.UTest.csproj|d:\\3.source\\fileprocessor\\fileprocessor.utest\\wmasslogictests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E63534BC-6743-441A-B1EB-8D166374C3FC}|FileProcessor.UTest\\FileProcessor.UTest.csproj|solutionrelative:fileprocessor.utest\\wmasslogictests.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 1,
@@ -38,96 +9,11 @@
       "DocumentGroups": [
         {
           "DockedHeight": 278,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": -1,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "BaseFileTemplate.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor.Core\\Infrastructure\\BaseFileTemplate.cs",
-              "RelativeDocumentMoniker": "FileProcessor.Core\\Infrastructure\\BaseFileTemplate.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor.Core\\Infrastructure\\BaseFileTemplate.cs",
-              "RelativeToolTip": "FileProcessor.Core\\Infrastructure\\BaseFileTemplate.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAACAAAAAIAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-11T08:07:58.301Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "WDispTemplate.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\WDisp.Plugin\\WDispTemplate.cs",
-              "RelativeDocumentMoniker": "WDisp.Plugin\\WDispTemplate.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\WDisp.Plugin\\WDispTemplate.cs",
-              "RelativeToolTip": "WDisp.Plugin\\WDispTemplate.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAuAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-11T08:01:26.975Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Program.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor.ToDelTest\\Program.cs",
-              "RelativeDocumentMoniker": "FileProcessor.ToDelTest\\Program.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor.ToDelTest\\Program.cs",
-              "RelativeToolTip": "FileProcessor.ToDelTest\\Program.cs",
-              "ViewState": "AgIAAG0AAAAAAAAAAAAuwHwAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-11T07:55:12.633Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "WMassLogicTests.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor.UTest\\WMassLogicTests.cs",
-              "RelativeDocumentMoniker": "FileProcessor.UTest\\WMassLogicTests.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor.UTest\\WMassLogicTests.cs",
-              "RelativeToolTip": "FileProcessor.UTest\\WMassLogicTests.cs",
-              "ViewState": "AgIAAE4AAAAAAAAAAAAuwGIAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-10T10:22:19.765Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "ProjectMonitorService.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor.Infrastructure\\Services\\ProjectMonitorService.cs",
-              "RelativeDocumentMoniker": "FileProcessor.Infrastructure\\Services\\ProjectMonitorService.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor.Infrastructure\\Services\\ProjectMonitorService.cs",
-              "RelativeToolTip": "FileProcessor.Infrastructure\\Services\\ProjectMonitorService.cs",
-              "ViewState": "AgIAADQAAAAAAAAAAAAwwFMAAAAIAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-10T09:50:12.088Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "FileOrchestrator.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor.Engine\\Runtime\\FileOrchestrator.cs",
-              "RelativeDocumentMoniker": "FileProcessor.Engine\\Runtime\\FileOrchestrator.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor.Engine\\Runtime\\FileOrchestrator.cs",
-              "RelativeToolTip": "FileProcessor.Engine\\Runtime\\FileOrchestrator.cs",
-              "ViewState": "AgIAACUAAAAAAAAAAAAmwD0AAAAjAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-10T09:49:39.457Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "WMassTemplate.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\WMass.Plugin\\WMassTemplate.cs",
-              "RelativeDocumentMoniker": "WMass.Plugin\\WMassTemplate.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\WMass.Plugin\\WMassTemplate.cs",
-              "RelativeToolTip": "WMass.Plugin\\WMassTemplate.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAwAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-10T09:36:50.103Z"
             }
           ]
         }
