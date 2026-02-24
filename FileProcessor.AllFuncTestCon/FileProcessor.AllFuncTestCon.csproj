@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FileProcessor.Core\FileProcessor.Core.csproj" />
+    <ProjectReference Include="..\FileProcessor.Engine\FileProcessor.Engine.csproj" />
+    <ProjectReference Include="..\FileProcessor.Infrastructure\FileProcessor.Infrastructure.csproj" />
+    <ProjectReference Include="..\FileProcessor.Mediator\FileProcessor.Mediator.csproj" />
+    <ProjectReference Include="..\WDisp.Plugin\WDisp.Plugin.csproj" />
+    <ProjectReference Include="..\WMass.Plugin\WMass.Plugin.csproj" />
+  </ItemGroup>
+
+</Project>

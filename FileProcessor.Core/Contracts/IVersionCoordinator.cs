@@ -36,6 +36,11 @@
         string GenerateLiveVersionId();
 
         /// <summary>
+        /// 通用的提交接口：手动宣告某个版本号的数据已经处理完毕。
+        /// </summary>
+        void Commit(string versionId);
+
+        /// <summary>
         /// 当批次被 mainjss.out 正式闭环后触发。
         /// </summary>
         event Action<string> VersionCommitted;

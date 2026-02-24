@@ -1,0 +1,12 @@
+D:\3.Source\FileProcessor\FileProcessor.DebugHelpers\bin\Debug\net10.0\FileProcessor.DebugHelpers.deps.json
+D:\3.Source\FileProcessor\FileProcessor.DebugHelpers\bin\Debug\net10.0\FileProcessor.DebugHelpers.dll
+D:\3.Source\FileProcessor\FileProcessor.DebugHelpers\bin\Debug\net10.0\FileProcessor.DebugHelpers.pdb
+D:\3.Source\FileProcessor\FileProcessor.DebugHelpers\obj\Debug\net10.0\FileProcessor.DebugHelpers.GeneratedMSBuildEditorConfig.editorconfig
+D:\3.Source\FileProcessor\FileProcessor.DebugHelpers\obj\Debug\net10.0\FileProcessor.DebugHelpers.AssemblyInfoInputs.cache
+D:\3.Source\FileProcessor\FileProcessor.DebugHelpers\obj\Debug\net10.0\FileProcessor.DebugHelpers.AssemblyInfo.cs
+D:\3.Source\FileProcessor\FileProcessor.DebugHelpers\obj\Debug\net10.0\FileProcessor.DebugHelpers.csproj.CoreCompileInputs.cache
+D:\3.Source\FileProcessor\FileProcessor.DebugHelpers\obj\Debug\net10.0\FileProcessor.DebugHelpers.sourcelink.json
+D:\3.Source\FileProcessor\FileProcessor.DebugHelpers\obj\Debug\net10.0\FileProcessor.DebugHelpers.dll
+D:\3.Source\FileProcessor\FileProcessor.DebugHelpers\obj\Debug\net10.0\refint\FileProcessor.DebugHelpers.dll
+D:\3.Source\FileProcessor\FileProcessor.DebugHelpers\obj\Debug\net10.0\FileProcessor.DebugHelpers.pdb
+D:\3.Source\FileProcessor\FileProcessor.DebugHelpers\obj\Debug\net10.0\ref\FileProcessor.DebugHelpers.dll

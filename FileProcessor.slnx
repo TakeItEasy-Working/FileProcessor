@@ -5,4 +5,6 @@
   <Project Path="D:/3.Source/FileProcessor/FileProcessor.Mediator/FileProcessor.Mediator.csproj" Id="26c7585b-d8ca-4aee-8834-8f1617130e8c" />
   <Project Path="D:/3.Source/FileProcessor/WDisp.Plugin/WDisp.Plugin.csproj" Id="4c6bd23e-ef0c-4431-8a0a-2a3c8c1b7802" />
   <Project Path="D:/3.Source/FileProcessor/WMass.Plugin/WMass.Plugin.csproj" Id="e98028e9-2382-4450-a2f1-c276184c2dc0" />
+  <Project Path="FileProcessor.DebugHelpers/FileProcessor.DebugHelpers.csproj" Id="d3216fb3-1b21-4be9-a46c-6d4f63e25af7" />
+  <Project Path="FileProcessor.Desktop/FileProcessor.Desktop.csproj" Id="ca3b77e8-3844-4e9c-9391-5294c5623780" />
 </Solution>

@@ -3,6 +3,7 @@ using FileProcessor.Core.Models;
 using FileProcessor.Engine.Runtime;
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
+using FileProcessor.DebugHelpers;
 
 namespace FileProcessor.Infrastructure.Services
 {
@@ -36,24 +37,54 @@ namespace FileProcessor.Infrastructure.Services
         {
             if (!Directory.Exists(path)) return;
 
-            // 1. 初始扫描：建立基准指纹 (异步执行，避免阻塞启动)
-            Task.Run(() => InitialScan(path));
+            try
+            {
+                // --- 阶段 1: 静默初始化 ---
+                // 通知编排器：接下来的文件不参与哨兵逻辑，全部锁死为 INITIAL_SCAN
+                _orchestrator.BeginInitialization();
 
-            // 2. 启动实时监控
+                var files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
+                foreach (var file in files)
+                {
+                    string currentHash = CalculateFileHash(file);
+                    _fileHashCache[file] = currentHash;
+
+                    // 直接调用初始化专用接口，绕过 HandleFileChange
+                    _orchestrator.ProcessInitialFile(file, currentHash);
+                }
+
+                // 强制提交 INITIAL_SCAN（即使 files 为空也会执行，保证 UI 链路打通）
+                _orchestrator.EndInitialization();
+
+                // --- 阶段 2: 激活实时监控 ---
+                // 初始化完成后，再开启监听，防止初始扫描的文件触发二次解析
+                SetupWatcher(path);
+            }
+            catch (Exception ex)
+            {
+                Log.Debug($"[ProjectMonitorService] 项目启动失败: {ex.Message}");
+                // 确保即使失败，初始化状态也被清理
+                _orchestrator.EndInitialization();
+            }
+            Log.Debug($"[ProjectMonitorService] 智能监控已就绪: {path}");
+        }
+
+        /// <summary>
+        /// 配置并启动 FileSystemWatcher
+        /// </summary>
+        private void SetupWatcher(string path)
+        {
+            _watcher?.Dispose();
             _watcher = new FileSystemWatcher(path)
             {
                 IncludeSubdirectories = true,
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.CreationTime | NotifyFilters.Size,
-                Filter = "*.out", // 仅锁定 YJK 生成的 .out 文件                
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size,
+                Filter = "*.*"
             };
 
             _watcher.Changed += (s, e) => HandleEvent(e.FullPath);
             _watcher.Created += (s, e) => HandleEvent(e.FullPath);
-            // Renamed 需要特殊处理，这里简化处理，视为新文件创建
-            _watcher.Renamed += (s, e) => HandleEvent(e.FullPath);
             _watcher.EnableRaisingEvents = true;
-
-            Console.WriteLine($"[Monitor] 智能监控已就绪: {path}");
         }
 
         /// <summary>
@@ -117,6 +148,7 @@ namespace FileProcessor.Infrastructure.Services
                 if (_fileHashCache.TryGetValue(fullPath, out string? lastHash) && lastHash == currentHash)
                 {
                     // 文件内容未实质变更，跳过
+                    Log.Debug($"[ProjectMonitorService] 文件Hash未改变，FullPath: {fullPath}");
                     return;
                 }
 
@@ -147,7 +179,7 @@ namespace FileProcessor.Infrastructure.Services
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[Monitor] 处理文件 {Path.GetFileName(fullPath)} 时异常: {ex.Message}");
+                Log.Debug($"[ProjectMonitorService] 处理文件 {Path.GetFileName(fullPath)} 时异常: {ex.Message}");
             }
         }
 

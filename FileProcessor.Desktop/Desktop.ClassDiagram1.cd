@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="FileProcessor.Desktop.Helpers.ResultExtensions">
+    <Position X="6.25" Y="7.75" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAA=</HashCode>
+      <FileName>Helpers\ResultExtensions.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FileProcessor.Desktop.ViewModels.MainViewModel">
+    <Position X="1" Y="5.25" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>IEAAAAAIAAAACAAAAABAEAAAAABAgIAEAEAgAAAAAIA=</HashCode>
+      <FileName>ViewModels\MainViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FileProcessor.Desktop.ViewModels.SlotViewModel">
+    <Position X="3.75" Y="5.25" Width="2" />
+    <TypeIdentifier>
+      <HashCode>BEAAAAAAAAAAAAABAAAgAAAABAAAgAAQAAAAAgCAAAA=</HashCode>
+      <FileName>ViewModels\SlotViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="FileProcessor.Desktop.MainWindow" BaseTypeListCollapsed="true">
+    <Position X="6.25" Y="5.25" Width="2.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAgAAAAAAAAAAAAAAAAAAABAAAAAAAAAAAACAAA=</HashCode>
+      <FileName>MainWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="FileProcessor.Engine.Registration.ProcessorRegistry">
+    <Position X="3" Y="2.25" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="FileProcessor.Engine.Runtime.FileOrchestrator">
+    <Position X="8" Y="1" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="FileProcessor.Engine.Runtime.PluginLoader">
+    <Position X="12.75" Y="1.25" Width="2.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="FileProcessor.Infrastructure.Services.ProjectMonitorService">
+    <Position X="11.5" Y="6.25" Width="2.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="FileProcessor.Infrastructure.Services.SnapshotManager" BaseTypeListCollapsed="true">
+    <Position X="0.5" Y="2.25" Width="2.25" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="FileProcessor.Infrastructure.Runtime.VersionCoordinator" BaseTypeListCollapsed="true">
+    <Position X="5.5" Y="1" Width="2.25" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Font Name="Microsoft YaHei UI" Size="9" />
+</ClassDiagram>

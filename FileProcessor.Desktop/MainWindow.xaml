@@ -1,0 +1,148 @@
+﻿<Window x:Class="FileProcessor.Desktop.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:FileProcessor.Desktop.ViewModels"
+        mc:Ignorable="d"
+        Title="YJK 数据监控中心 - 旗舰版" Height="900" Width="1500"
+        Background="#F0F2F5">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Background="White" BorderBrush="#CCCFD3" BorderThickness="0,0,0,1" Padding="12,8">
+            <StackPanel Orientation="Horizontal">
+                <Button Content="📁 选择项目" Width="100" Height="30" Margin="0,0,15,0" Cursor="Hand"
+                        Command="{Binding SelectProjectCommand}"/>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,20,0">
+                    <TextBlock Text="监控路径: " Foreground="#666" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding ProjectPath, TargetNullValue='未选择路径'}" FontWeight="Bold" VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <Separator Margin="10,0"/>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0">
+                    <TextBlock Text="当前塔号: " FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                    <ComboBox Width="100" Height="26" 
+                              SelectedValue="{Binding CurrentTower}"
+                              SelectedValuePath="Content">
+                        <ComboBoxItem Content="1"/>
+                        <ComboBoxItem Content="2"/>
+                        <ComboBoxItem Content="3"/>
+                        <ComboBoxItem Content="All"/>
+                    </ComboBox>
+                </StackPanel>
+
+                <Separator Margin="10,0"/>
+
+                <Ellipse Width="10" Height="10" Fill="{Binding StatusColor, FallbackValue='#2ECC71'}" Margin="10,0,5,0" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding StatusText, FallbackValue='正在实时监控...'}" VerticalAlignment="Center" Foreground="#27AE60" FontSize="12"/>
+            </StackPanel>
+        </Border>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="240"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="380"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0" Margin="6">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <GroupBox Header="计算版本记录" BorderBrush="#D1D5DB">
+                    <ListBox BorderThickness="0" Background="Transparent"
+                             ItemsSource="{Binding VersionHistory}"
+                             SelectedItem="{Binding SelectedVersion}">
+                    </ListBox>
+                </GroupBox>
+
+                <GroupBox Header="当前版本操作" Grid.Row="1" Margin="0,5,0,0" BorderBrush="#D1D5DB" Padding="5">
+                    <Button Content="📗 导出选中版本 (Excel)" Height="35" Margin="0,5" 
+                            Background="#EBFBEE" BorderBrush="#27AE60"
+                            Command="{Binding ExportCommand}"/>
+                </GroupBox>
+            </Grid>
+
+            <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="220"/>
+                </Grid.RowDefinitions>
+
+                <GroupBox Header="分项数据详情 (双下拉选择)" Margin="4">
+                    <ItemsControl ItemsSource="{Binding Slots}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="4" Rows="2"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:SlotViewModel}">
+                                <Border BorderBrush="#E5E7EB" BorderThickness="1" Margin="3" Background="White">
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Top" Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
+                                            <StackPanel Margin="4">
+                                                <ComboBox Margin="0,0,0,2" FontSize="11"
+                                                          ItemsSource="{Binding AvailableFiles}"
+                                                          SelectedItem="{Binding SelectedFile, UpdateSourceTrigger=PropertyChanged}"
+                                                          />
+                                                <ComboBox FontSize="11"
+                                                          ItemsSource="{Binding AvailableBlocks}"
+                                                          SelectedItem="{Binding SelectedBlock, UpdateSourceTrigger=PropertyChanged}"
+                                                          />
+                                            </StackPanel>
+                                        </Border>
+                                        <DataGrid IsReadOnly="True" BorderThickness="0"
+                                                  ItemsSource="{Binding DisplayTable}"
+                                                  AutoGenerateColumns="True"/>
+                                    </DockPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </GroupBox>
+
+                <GroupBox Header="全局汇总数据 (固定展示)" Grid.Row="1" Margin="4" BorderBrush="#93C5FD" Background="White">
+                    <DataGrid IsReadOnly="True" BorderThickness="0" ItemsSource="{Binding SummaryTable}"/>
+                </GroupBox>
+            </Grid>
+
+            <GroupBox Header="参数趋势与对比分析" Grid.Column="2" Margin="6" BorderBrush="#D1D5DB">
+                <DockPanel>
+                    <StackPanel DockPanel.Dock="Top" Margin="5">
+                        <TextBlock Text="目标文件" Margin="0,0,0,3" FontSize="11" Foreground="#666"/>
+                        <ComboBox Margin="0,0,0,8" />
+
+                        <TextBlock Text="目标数据块" Margin="0,0,0,3" FontSize="11" Foreground="#666"/>
+                        <ComboBox Margin="0,0,0,8" />
+
+                        <TextBlock Text="对比参数列" Margin="0,0,0,3" FontSize="11" Foreground="#666"/>
+                        <ComboBox Margin="0,0,0,12" />
+
+                        <Button Content="📊 导出全版本横向对比表" Height="35" Margin="0,0,0,10" 
+                                Background="#F0F7FF" BorderBrush="#2563EB"
+                                Command="{Binding ExportComparisonCommand}"/>
+                        <Separator Margin="0,5"/>
+                    </StackPanel>
+
+                    <Border DockPanel.Dock="Top" Height="220" Background="#F3F4F6" Margin="5" CornerRadius="4" BorderBrush="#E5E7EB" BorderThickness="1">
+                        <TextBlock Text="[ 趋势折线图预览 ]" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#9CA3AF"/>
+                    </Border>
+
+                    <DataGrid Margin="5" IsReadOnly="True" BorderBrush="#EEE" Background="White" 
+                              ItemsSource="{Binding ComparisonTable}"/>
+                </DockPanel>
+            </GroupBox>
+        </Grid>
+    </Grid>
+</Window>

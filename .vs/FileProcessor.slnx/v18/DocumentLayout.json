@@ -1,7 +1,16 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\3.Source\\FileProcessor\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{CA3B77E8-3844-4E9C-9391-5294C5623780}|FileProcessor.Desktop\\FileProcessor.Desktop.csproj|d:\\3.source\\fileprocessor\\fileprocessor.desktop\\viewmodels\\slotviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA3B77E8-3844-4E9C-9391-5294C5623780}|FileProcessor.Desktop\\FileProcessor.Desktop.csproj|solutionrelative:fileprocessor.desktop\\viewmodels\\slotviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{26C7585B-D8CA-4AEE-8834-8F1617130E8C}|FileProcessor.Mediator\\FileProcessor.Mediator.csproj|d:\\3.source\\fileprocessor\\fileprocessor.mediator\\datacoordinator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{26C7585B-D8CA-4AEE-8834-8F1617130E8C}|FileProcessor.Mediator\\FileProcessor.Mediator.csproj|solutionrelative:fileprocessor.mediator\\datacoordinator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 1,
@@ -9,11 +18,37 @@
       "DocumentGroups": [
         {
           "DockedHeight": 278,
-          "SelectedChildIndex": -1,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "SlotViewModel.cs",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor.Desktop\\ViewModels\\SlotViewModel.cs",
+              "RelativeDocumentMoniker": "FileProcessor.Desktop\\ViewModels\\SlotViewModel.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor.Desktop\\ViewModels\\SlotViewModel.cs",
+              "RelativeToolTip": "FileProcessor.Desktop\\ViewModels\\SlotViewModel.cs",
+              "ViewState": "AgIAAGYAAAAAAAAAAAAYwGcAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-24T05:28:55.793Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "DataCoordinator.cs",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor.Mediator\\DataCoordinator.cs",
+              "RelativeDocumentMoniker": "FileProcessor.Mediator\\DataCoordinator.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor.Mediator\\DataCoordinator.cs",
+              "RelativeToolTip": "FileProcessor.Mediator\\DataCoordinator.cs",
+              "ViewState": "AgIAAFcAAAAAAAAAAAAkwHYAAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-24T05:27:18.849Z",
+              "EditorCaption": ""
             }
           ]
         }

@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "42ckloYCDfE=",
+  "success": true,
+  "projectFilePath": "D:\\3.Source\\FileProcessor\\FileProcessor.Desktop\\FileProcessor.Desktop.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\liuyu\\.nuget\\packages\\communitytoolkit.mvvm\\8.4.0\\communitytoolkit.mvvm.8.4.0.nupkg.sha512"
+  ],
+  "logs": []
+}

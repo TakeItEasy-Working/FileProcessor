@@ -12,6 +12,16 @@
           "bin/placeholder/FileProcessor.Core.dll": {}
         }
       },
+      "FileProcessor.DebugHelpers/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "compile": {
+          "bin/placeholder/FileProcessor.DebugHelpers.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/FileProcessor.DebugHelpers.dll": {}
+        }
+      },
       "FileProcessor.Engine/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v10.0",
@@ -33,6 +43,11 @@
       "path": "../FileProcessor.Core/FileProcessor.Core.csproj",
       "msbuildProject": "../FileProcessor.Core/FileProcessor.Core.csproj"
     },
+    "FileProcessor.DebugHelpers/1.0.0": {
+      "type": "project",
+      "path": "../FileProcessor.DebugHelpers/FileProcessor.DebugHelpers.csproj",
+      "msbuildProject": "../FileProcessor.DebugHelpers/FileProcessor.DebugHelpers.csproj"
+    },
     "FileProcessor.Engine/1.0.0": {
       "type": "project",
       "path": "../FileProcessor.Engine/FileProcessor.Engine.csproj",
@@ -42,6 +57,7 @@
   "projectFileDependencyGroups": {
     "net10.0": [
       "FileProcessor.Core >= 1.0.0",
+      "FileProcessor.DebugHelpers >= 1.0.0",
       "FileProcessor.Engine >= 1.0.0"
     ]
   },
@@ -79,6 +95,9 @@
           "projectReferences": {
             "D:\\3.Source\\FileProcessor\\FileProcessor.Core\\FileProcessor.Core.csproj": {
               "projectPath": "D:\\3.Source\\FileProcessor\\FileProcessor.Core\\FileProcessor.Core.csproj"
+            },
+            "D:\\3.Source\\FileProcessor\\FileProcessor.DebugHelpers\\FileProcessor.DebugHelpers.csproj": {
+              "projectPath": "D:\\3.Source\\FileProcessor\\FileProcessor.DebugHelpers\\FileProcessor.DebugHelpers.csproj"
             },
             "D:\\3.Source\\FileProcessor\\FileProcessor.Engine\\FileProcessor.Engine.csproj": {
               "projectPath": "D:\\3.Source\\FileProcessor\\FileProcessor.Engine\\FileProcessor.Engine.csproj"

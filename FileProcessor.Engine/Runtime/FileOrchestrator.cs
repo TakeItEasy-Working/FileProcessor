@@ -21,6 +21,10 @@ namespace FileProcessor.Engine.Runtime
         // 暂存录制期间的文件变动，Key 为 FilePath，确保同一个文件只有一条记录
         private readonly ConcurrentDictionary<string, ProcessingTaskContext> _pendingTasks = new();
 
+        // 标记当前是否处于项目初次加载阶段
+        private bool _isInitializing = false;
+        private const string InitialVersionId = "INITIAL_SCAN";
+
         public FileOrchestrator(
             IEnumerable<IFileTemplate> templates,
             ISnapshotManager snapshotManager,
@@ -34,12 +38,53 @@ namespace FileProcessor.Engine.Runtime
         }
 
         /// <summary>
+        /// 开启初始化模式。在此模式下，所有解析任务将强制归入 INITIAL_SCAN 版本，且不触发哨兵逻辑。
+        /// </summary>
+        public void BeginInitialization() => _isInitializing = true;
+
+        /// <summary>
+        /// 结束初始化模式，并手动提交 INITIAL_SCAN 版本。
+        /// </summary>
+        public void EndInitialization()
+        {
+            _isInitializing = false;
+            // 无论初始化期间是否发现文件，都提交该版本以确保 UI 逻辑闭环
+            _versionCoordinator.Commit(InitialVersionId);
+        }
+
+        /// <summary>
+        /// 处理初始化阶段的单个文件。该方法绕过延迟队列和哨兵状态检查。
+        /// </summary>
+        /// <param name="filePath">物理路径</param>
+        /// <param name="hash">预计算的文件哈希</param>
+        public void ProcessInitialFile(string filePath, string hash)
+        {
+            var context = new ProcessingTaskContext
+            {
+                FilePath = filePath,
+                FileHash = hash,
+                BoundVersionId = InitialVersionId, // 强制归并到初始化版本
+                TriggerTime = DateTime.Now
+            };
+
+            // 立即执行解析并存入快照库
+            ExecuteSingleTask(context);
+        }
+
+        /// <summary>
         /// 接收监控层发来的处理请求
         /// </summary>
         /// <param name="context">任务上下文</param>
         /// <param name="isRecording">是否处于批次录制状态</param>
         public void EnqueueTask(ProcessingTaskContext context, bool isRecording)
         {
+            // 如果是在初始化后由于某些原因误触发，重定向到初始化逻辑
+            if (_isInitializing)
+            {
+                ProcessInitialFile(context.FilePath, context.FileHash);
+                return;
+            }
+
             if (isRecording)
             {
                 // A轨：录制模式

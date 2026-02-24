@@ -1,4 +1,5 @@
 ﻿using FileProcessor.Core.Contracts;
+using FileProcessor.DebugHelpers;
 using System;
 
 namespace FileProcessor.Infrastructure.Runtime
@@ -19,6 +20,19 @@ namespace FileProcessor.Infrastructure.Runtime
         public event Action<string, string>? LiveUpdateProcessed;
 
         /// <summary>
+        /// 实现接口：通用的版本提交。
+        /// 无论是否在录制中，都可以调用此方法触发 UI 刷新。
+        /// </summary>
+        public void Commit(string versionId)
+        {
+            Console.WriteLine($"[Coordinator] 显式提交版本: {versionId}");
+            Log.Debug($"[Coordinator] 显式提交版本: {versionId}");
+
+            // 核心：直接触发事件，通知 DataCoordinator 和插槽刷新
+            VersionCommitted?.Invoke(versionId);
+        }
+
+        /// <summary>
         /// 当 check.out 出现时调用
         /// </summary>
         public void StartNewBatch(string source)
@@ -26,6 +40,7 @@ namespace FileProcessor.Infrastructure.Runtime
             _isRecording = true;
             _activeBatchId = $"Batch_{DateTime.Now:yyyyMMdd_HHmmss}";
             Console.WriteLine($"[Coordinator] 检测到 check.out，批次录制开始: {_activeBatchId}");
+            Log.Debug($"[Coordinator] 检测到 check.out，批次录制开始: {_activeBatchId}");
         }
 
         /// <summary>
@@ -40,9 +55,10 @@ namespace FileProcessor.Infrastructure.Runtime
             _activeBatchId = "Live";
 
             Console.WriteLine($"[Coordinator] 检测到 mainjss.out，批次闭环: {completedVersionId}");
+            Log.Debug($"[Coordinator] 检测到 mainjss.out，批次闭环: {completedVersionId}");
 
-            // 触发事件，通知 UI 和 Orchestrator
-            VersionCommitted?.Invoke(completedVersionId);
+            // 复用 Commit 方法广播信号
+            Commit(completedVersionId);
         }
 
         /// <summary>
@@ -51,7 +67,9 @@ namespace FileProcessor.Infrastructure.Runtime
         public string GenerateLiveVersionId()
         {
             // 使用细化到秒的时间戳，确保历史记录的唯一性
+            Log.Debug($"Live_{DateTime.Now:yyyyMMdd_HHmmss}");
             return $"Live_{DateTime.Now:yyyyMMdd_HHmmss}";
+            
         }
     }
 }

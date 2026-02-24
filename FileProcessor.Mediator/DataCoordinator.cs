@@ -64,8 +64,12 @@ namespace FileProcessor.Mediator
             ActiveViewVersionId = _versionCoordinator.CurrentVersionId;
             _lastAutoVersionId = ActiveViewVersionId;
 
+            // 1. 宏观信号：监听哨兵文件序列闭环（Batch 更新）
             // 订阅内核封版事件：当 YJK 计算产生新文件并封版时，自动刷新 UI
             _versionCoordinator.VersionCommitted += OnVersionCommitted;
+
+            // 2. 微观信号：监听单个文件解析完成（实时单刷）
+            _versionCoordinator.LiveUpdateProcessed += OnLiveUpdateProcessed;
         }
 
         #region UI 交互接口 (Commands)
@@ -88,21 +92,29 @@ namespace FileProcessor.Mediator
         }
 
         /// <summary>
-        /// 切换视图观察的版本。常用于左侧版本列表点击切换。
+        /// 切换当前视图的版本 ID，并主动触发激活插槽的数据重载。
+        /// 实现了版本更新时的“数据自动推流”功能。
         /// </summary>
-        /// <param name="versionId">目标版本 ID。</param>
+        /// <param name="versionId">目标版本 ID（如 INITIAL_SCAN 或 Batch_xxx）</param>
         public void SwitchViewVersion(string versionId)
         {
-            if (string.IsNullOrEmpty(versionId) || ActiveViewVersionId == versionId) return;
+            if (string.IsNullOrEmpty(versionId)) return;
 
             ActiveViewVersionId = versionId;
 
-            // 切换版本后，所有已配置的插槽都需要重新同步数据
-            // 注意：一旦调用此方法，ActiveViewVersionId 就会脱离 _lastAutoVersionId
-            // 从而进入“手动模式”，直到下一次封版或者用户手动切回最新。
+            // 核心推流逻辑：遍历所有配置插槽
             for (int i = 0; i < _slots.Count; i++)
             {
-                if (_slots[i].IsActive) RefreshSlot(i);
+                var slot = _slots[i];
+
+                // 如果插槽处于活跃状态（即用户之前已经选择过具体文件和数据块）
+                // 我们就用新的版本号，去底层 SnapshotManager 重新捞取数据
+                if (slot.IsActive)
+                {
+                    // RefreshSlot 内部会使用当前的 ActiveViewVersionId 去查数据
+                    // 查到后会触发 SlotDataChanged 事件，从而让 UI 瞬间刷新
+                    RefreshSlot(i);
+                }
             }
         }
 
@@ -125,7 +137,10 @@ namespace FileProcessor.Mediator
         /// <param name="index">插槽索引。</param>
         public void RefreshSlot(int index)
         {
+            System.Diagnostics.Trace.WriteLine($"==== [Slot {index}] 进入刷新逻辑 ====");
+
             var slot = _slots[index];
+            System.Diagnostics.Debug.WriteLine($"[Slot {index}] 尝试刷新. 文件: {slot.TargetFileName}, 块: {slot.TargetBlockName}, 版本: {ActiveViewVersionId}");
             if (!slot.IsActive) return;
 
             UpdateStatus(index, SlotStatus.Loading);
@@ -138,10 +153,13 @@ namespace FileProcessor.Mediator
 
             if (rawData == null)
             {
+                System.Diagnostics.Debug.WriteLine($"[Slot {index}] 失败: SnapshotManager 返回 null (检查版本号是否匹配)");
                 UpdateStatus(index, SlotStatus.NoData);
                 SlotDataChanged?.Invoke(index, null);
                 return;
             }
+
+            System.Diagnostics.Debug.WriteLine($"[Slot {index}] 成功: 拿到 {rawData.Rows.Count} 行数据");
 
             // 执行多塔过滤逻辑
             var filteredData = ApplyTowerFilter(rawData, slot.CurrentTower);
@@ -160,7 +178,10 @@ namespace FileProcessor.Mediator
         /// <returns>文件名集合。</returns>
         public IEnumerable<string> GetAvailableFiles()
         {
-            return _snapshotManager.GetFileNames(ActiveViewVersionId);
+            // 如果当前还没选版本，默认去拿最新自动生成的版本
+            var versionToQuery = ActiveViewVersionId ?? _lastAutoVersionId;
+            if (string.IsNullOrEmpty(versionToQuery)) return Enumerable.Empty<string>();
+            return _snapshotManager.GetFileNames(versionToQuery);
         }
 
         /// <summary>
@@ -200,23 +221,42 @@ namespace FileProcessor.Mediator
         /// </summary>
         private void OnVersionCommitted(string versionId)
         {
-            // 1. 逻辑判断：如果当前用户的视图版本等于我们上次记录的自动版本
-            // 说明用户此刻正处于“自动模式”，没有去手动查看老版本。
+            // 逻辑：如果用户当前处于“跟随模式”，则自动把视图切到新的 Batch 版本
             bool shouldFollow = (ActiveViewVersionId == _lastAutoVersionId);
 
-            // 2. 更新影子变量，记录最新的版本锚点
             _lastAutoVersionId = versionId;
 
-            // 3. 如果需要跟随，则更新 UI 观察的版本
             if (shouldFollow)
             {
+                // 自动跟随新批次
                 ActiveViewVersionId = versionId;
-            }
 
-            // 4. 无论是否跟随版本，数据刷新是必须的（或者你可以根据业务需求决定是否仅在跟随状态下刷新）
+                // 触发所有插槽刷新
+                for (int i = 0; i < _slots.Count; i++)
+                {
+                    if (_slots[i].IsActive) RefreshSlot(i);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 响应微观更新信号：当某个文件单独解析完成后，精准刷新关联插槽。
+        /// </summary>
+        /// <param name="versionId">当前的实时版本号（通常为 Live 或 Live_时间戳）</param>
+        /// <param name="fileName">刚刚更新的文件名（如 wdisp.out）</param>
+        private void OnLiveUpdateProcessed(string versionId, string fileName)
+        {
+            // 微观刷新仅在“跟随模式”下有意义，或者目标版本就是 Live 时
+            if (!IsFollowingLive && ActiveViewVersionId != "Live") return;
+
             for (int i = 0; i < _slots.Count; i++)
             {
-                if (_slots[i].IsActive) RefreshSlot(i);
+                var slot = _slots[i];
+                // 只有处于活跃状态，且目标文件名匹配的插槽才触发局部刷新
+                if (slot.IsActive && string.Equals(slot.TargetFileName, fileName, StringComparison.OrdinalIgnoreCase))
+                {
+                    RefreshSlot(i);
+                }
             }
         }
 

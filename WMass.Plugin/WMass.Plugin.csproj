@@ -18,7 +18,7 @@
 		<PropertyGroup>
 			<RootDir Condition="'$(SolutionDir)' != ''">$(SolutionDir)</RootDir>
 			<RootDir Condition="'$(SolutionDir)' == ''">$(MSBuildProjectDirectory)\..\</RootDir>
-			<PluginTarget>$(RootDir)FileProcessor.ToDelTest\bin\$(Configuration)\$(TargetFramework)\Plugins\</PluginTarget>
+			<PluginTarget>$(RootDir)FileProcessor.Desktop\bin\$(Configuration)\net10.0-windows\Plugins\</PluginTarget>
 		</PropertyGroup>
 
 		<Message Text="[Build Info] 插件源码路径: $(TargetDir)" Importance="high" />

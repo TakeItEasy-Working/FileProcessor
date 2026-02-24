@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\FileProcessor.DebugHelpers\FileProcessor.DebugHelpers.csproj" />
     <ProjectReference Include="..\FileProcessor.Engine\FileProcessor.Engine.csproj" />
     <ProjectReference Include="..\FileProcessor.Core\FileProcessor.Core.csproj" />
   </ItemGroup>
