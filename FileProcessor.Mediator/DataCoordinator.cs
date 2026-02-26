@@ -212,6 +212,21 @@ namespace FileProcessor.Mediator
         /// <returns>插槽配置对象。</returns>
         public SlotConfiguration GetSlotInfo(int index) => _slots[index];
 
+        /// <summary>
+        /// 彻底清空底层缓存数据（用于切换项目时重置内存状态）
+        /// </summary>
+        public void ClearAllData()
+        {
+            _snapshotManager.Clear();
+
+            // 如果有针对插槽缓存的私有状态，也可以在这里重置
+            foreach (var slot in _slots)
+            {
+                slot.TargetFileName = null;
+                slot.TargetBlockName = null;
+            }
+        }
+
         #endregion
 
         #region 私有辅助逻辑

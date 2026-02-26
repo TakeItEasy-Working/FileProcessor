@@ -39,11 +39,13 @@ namespace FileProcessor.Infrastructure.Services
 
             try
             {
+                _fileHashCache.Clear();
+
                 // --- 阶段 1: 静默初始化 ---
                 // 通知编排器：接下来的文件不参与哨兵逻辑，全部锁死为 INITIAL_SCAN
                 _orchestrator.BeginInitialization();
 
-                var files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
+                var files = Directory.GetFiles(path, "*.out", SearchOption.AllDirectories);
                 foreach (var file in files)
                 {
                     string currentHash = CalculateFileHash(file);
@@ -79,7 +81,7 @@ namespace FileProcessor.Infrastructure.Services
             {
                 IncludeSubdirectories = true,
                 NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.Size,
-                Filter = "*.*"
+                Filter = "*.out"
             };
 
             _watcher.Changed += (s, e) => HandleEvent(e.FullPath);

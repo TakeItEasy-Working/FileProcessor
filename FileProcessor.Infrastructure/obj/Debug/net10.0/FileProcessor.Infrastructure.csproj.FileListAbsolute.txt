@@ -2,7 +2,9 @@ D:\3.Source\FileProcessor\FileProcessor.Infrastructure\bin\Debug\net10.0\FilePro
 D:\3.Source\FileProcessor\FileProcessor.Infrastructure\bin\Debug\net10.0\FileProcessor.Infrastructure.dll
 D:\3.Source\FileProcessor\FileProcessor.Infrastructure\bin\Debug\net10.0\FileProcessor.Infrastructure.pdb
 D:\3.Source\FileProcessor\FileProcessor.Infrastructure\bin\Debug\net10.0\FileProcessor.Core.dll
+D:\3.Source\FileProcessor\FileProcessor.Infrastructure\bin\Debug\net10.0\FileProcessor.DebugHelpers.dll
 D:\3.Source\FileProcessor\FileProcessor.Infrastructure\bin\Debug\net10.0\FileProcessor.Engine.dll
+D:\3.Source\FileProcessor\FileProcessor.Infrastructure\bin\Debug\net10.0\FileProcessor.DebugHelpers.pdb
 D:\3.Source\FileProcessor\FileProcessor.Infrastructure\bin\Debug\net10.0\FileProcessor.Engine.pdb
 D:\3.Source\FileProcessor\FileProcessor.Infrastructure\bin\Debug\net10.0\FileProcessor.Core.pdb
 D:\3.Source\FileProcessor\FileProcessor.Infrastructure\obj\Debug\net10.0\FileProcessor.Infrastructure.csproj.AssemblyReference.cache
@@ -16,5 +18,3 @@ D:\3.Source\FileProcessor\FileProcessor.Infrastructure\obj\Debug\net10.0\FilePro
 D:\3.Source\FileProcessor\FileProcessor.Infrastructure\obj\Debug\net10.0\refint\FileProcessor.Infrastructure.dll
 D:\3.Source\FileProcessor\FileProcessor.Infrastructure\obj\Debug\net10.0\FileProcessor.Infrastructure.pdb
 D:\3.Source\FileProcessor\FileProcessor.Infrastructure\obj\Debug\net10.0\ref\FileProcessor.Infrastructure.dll
-D:\3.Source\FileProcessor\FileProcessor.Infrastructure\bin\Debug\net10.0\FileProcessor.DebugHelpers.dll
-D:\3.Source\FileProcessor\FileProcessor.Infrastructure\bin\Debug\net10.0\FileProcessor.DebugHelpers.pdb

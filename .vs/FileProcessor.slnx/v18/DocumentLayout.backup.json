@@ -3,12 +3,20 @@
   "WorkspaceRootPath": "D:\\3.Source\\FileProcessor\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{CA3B77E8-3844-4E9C-9391-5294C5623780}|FileProcessor.Desktop\\FileProcessor.Desktop.csproj|d:\\3.source\\fileprocessor\\fileprocessor.desktop\\viewmodels\\slotviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{CA3B77E8-3844-4E9C-9391-5294C5623780}|FileProcessor.Desktop\\FileProcessor.Desktop.csproj|solutionrelative:fileprocessor.desktop\\viewmodels\\slotviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{CA3B77E8-3844-4E9C-9391-5294C5623780}|FileProcessor.Desktop\\FileProcessor.Desktop.csproj|d:\\3.source\\fileprocessor\\fileprocessor.desktop\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}",
+      "RelativeMoniker": "D:0:0:{CA3B77E8-3844-4E9C-9391-5294C5623780}|FileProcessor.Desktop\\FileProcessor.Desktop.csproj|solutionrelative:fileprocessor.desktop\\mainwindow.xaml||{F11ACC28-31D1-4C80-A34B-F4E09D3D753C}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{26C7585B-D8CA-4AEE-8834-8F1617130E8C}|FileProcessor.Mediator\\FileProcessor.Mediator.csproj|d:\\3.source\\fileprocessor\\fileprocessor.mediator\\datacoordinator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{26C7585B-D8CA-4AEE-8834-8F1617130E8C}|FileProcessor.Mediator\\FileProcessor.Mediator.csproj|solutionrelative:fileprocessor.mediator\\datacoordinator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{CA3B77E8-3844-4E9C-9391-5294C5623780}|FileProcessor.Desktop\\FileProcessor.Desktop.csproj|d:\\3.source\\fileprocessor\\fileprocessor.desktop\\viewmodels\\mainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA3B77E8-3844-4E9C-9391-5294C5623780}|FileProcessor.Desktop\\FileProcessor.Desktop.csproj|solutionrelative:fileprocessor.desktop\\viewmodels\\mainviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{7A4AFC1D-F796-409D-9E6E-126314CDDE39}|FileProcessor.Infrastructure\\FileProcessor.Infrastructure.csproj|d:\\3.source\\fileprocessor\\fileprocessor.infrastructure\\services\\projectmonitorservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{7A4AFC1D-F796-409D-9E6E-126314CDDE39}|FileProcessor.Infrastructure\\FileProcessor.Infrastructure.csproj|solutionrelative:fileprocessor.infrastructure\\services\\projectmonitorservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{CA3B77E8-3844-4E9C-9391-5294C5623780}|FileProcessor.Desktop\\FileProcessor.Desktop.csproj|d:\\3.source\\fileprocessor\\fileprocessor.desktop\\viewmodels\\slotviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CA3B77E8-3844-4E9C-9391-5294C5623780}|FileProcessor.Desktop\\FileProcessor.Desktop.csproj|solutionrelative:fileprocessor.desktop\\viewmodels\\slotviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -27,27 +35,52 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "SlotViewModel.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor.Desktop\\ViewModels\\SlotViewModel.cs",
-              "RelativeDocumentMoniker": "FileProcessor.Desktop\\ViewModels\\SlotViewModel.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor.Desktop\\ViewModels\\SlotViewModel.cs*",
-              "RelativeToolTip": "FileProcessor.Desktop\\ViewModels\\SlotViewModel.cs*",
-              "ViewState": "AgIAAEAAAAAAAAAAAAAIwGcAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-24T05:28:55.793Z",
+              "Title": "MainWindow.xaml",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor.Desktop\\MainWindow.xaml",
+              "RelativeDocumentMoniker": "FileProcessor.Desktop\\MainWindow.xaml",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor.Desktop\\MainWindow.xaml",
+              "RelativeToolTip": "FileProcessor.Desktop\\MainWindow.xaml",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
+              "WhenOpened": "2026-02-26T07:56:36.481Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "DataCoordinator.cs",
-              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor.Mediator\\DataCoordinator.cs",
-              "RelativeDocumentMoniker": "FileProcessor.Mediator\\DataCoordinator.cs",
-              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor.Mediator\\DataCoordinator.cs",
-              "RelativeToolTip": "FileProcessor.Mediator\\DataCoordinator.cs",
-              "ViewState": "AgIAAFcAAAAAAAAAAAAkwHYAAAAJAAAAAAAAAA==",
+              "Title": "MainViewModel.cs",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor.Desktop\\ViewModels\\MainViewModel.cs",
+              "RelativeDocumentMoniker": "FileProcessor.Desktop\\ViewModels\\MainViewModel.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor.Desktop\\ViewModels\\MainViewModel.cs",
+              "RelativeToolTip": "FileProcessor.Desktop\\ViewModels\\MainViewModel.cs",
+              "ViewState": "AgIAAEkAAAAAAAAAAAAkwE8AAABRAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-24T05:27:18.849Z",
+              "WhenOpened": "2026-02-26T07:45:36.874Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "SlotViewModel.cs",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor.Desktop\\ViewModels\\SlotViewModel.cs",
+              "RelativeDocumentMoniker": "FileProcessor.Desktop\\ViewModels\\SlotViewModel.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor.Desktop\\ViewModels\\SlotViewModel.cs",
+              "RelativeToolTip": "FileProcessor.Desktop\\ViewModels\\SlotViewModel.cs",
+              "ViewState": "AgIAAAIBAAAAAAAAAAAowBUBAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-26T06:50:31.466Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "ProjectMonitorService.cs",
+              "DocumentMoniker": "D:\\3.Source\\FileProcessor\\FileProcessor.Infrastructure\\Services\\ProjectMonitorService.cs",
+              "RelativeDocumentMoniker": "FileProcessor.Infrastructure\\Services\\ProjectMonitorService.cs",
+              "ToolTip": "D:\\3.Source\\FileProcessor\\FileProcessor.Infrastructure\\Services\\ProjectMonitorService.cs",
+              "RelativeToolTip": "FileProcessor.Infrastructure\\Services\\ProjectMonitorService.cs",
+              "ViewState": "AgIAABkAAAAAAAAAAAA5wCIAAAA5AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-02-26T06:36:41.97Z",
               "EditorCaption": ""
             }
           ]

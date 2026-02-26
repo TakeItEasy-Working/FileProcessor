@@ -4,9 +4,23 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:FileProcessor.Desktop.ViewModels"
+        xmlns:lvc="clr-namespace:LiveCharts.Wpf;assembly=LiveCharts.Wpf"
         mc:Ignorable="d"
         Title="YJK 数据监控中心 - 旗舰版" Height="900" Width="1500"
         Background="#F0F2F5">
+
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+
+        <Style TargetType="FrameworkElement" x:Key="VisibleIfTable">
+            <Setter Property="Visibility" Value="Visible"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsChartMode}" Value="True">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -57,14 +71,12 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-
                 <GroupBox Header="计算版本记录" BorderBrush="#D1D5DB">
                     <ListBox BorderThickness="0" Background="Transparent"
                              ItemsSource="{Binding VersionHistory}"
                              SelectedItem="{Binding SelectedVersion}">
                     </ListBox>
                 </GroupBox>
-
                 <GroupBox Header="当前版本操作" Grid.Row="1" Margin="0,5,0,0" BorderBrush="#D1D5DB" Padding="5">
                     <Button Content="📗 导出选中版本 (Excel)" Height="35" Margin="0,5" 
                             Background="#EBFBEE" BorderBrush="#27AE60"
@@ -78,7 +90,7 @@
                     <RowDefinition Height="220"/>
                 </Grid.RowDefinitions>
 
-                <GroupBox Header="分项数据详情 (双下拉选择)" Margin="4">
+                <GroupBox Header="分项数据详情 (多视图插槽)" Margin="4">
                     <ItemsControl ItemsSource="{Binding Slots}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -89,23 +101,119 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type vm:SlotViewModel}">
                                 <Border BorderBrush="#E5E7EB" BorderThickness="1" Margin="3" Background="White">
-                                    <DockPanel>
-                                        <Border DockPanel.Dock="Top" Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
-                                            <StackPanel Margin="4">
-                                                <ComboBox Margin="0,0,0,2" FontSize="11"
-                                                          ItemsSource="{Binding AvailableFiles}"
-                                                          SelectedItem="{Binding SelectedFile, UpdateSourceTrigger=PropertyChanged}"
-                                                          />
-                                                <ComboBox FontSize="11"
-                                                          ItemsSource="{Binding AvailableBlocks}"
-                                                          SelectedItem="{Binding SelectedBlock, UpdateSourceTrigger=PropertyChanged}"
-                                                          />
-                                            </StackPanel>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                        </Grid.RowDefinitions>
+
+                                        <Border Grid.Row="0" Background="#F9FAFB" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" Padding="4">
+                                            <DockPanel>
+                                                <ToggleButton DockPanel.Dock="Right" Width="24" Height="22" Margin="4,0,0,0"
+                                                              IsChecked="{Binding IsChartMode}" Cursor="Hand" ToolTip="切换 图表/表格">
+                                                    <ToggleButton.Style>
+                                                        <Style TargetType="ToggleButton">
+                                                            <Setter Property="Content" Value="🧮"/>
+                                                            <Style.Triggers>
+                                                                <Trigger Property="IsChecked" Value="True">
+                                                                    <Setter Property="Content" Value="📊"/>
+                                                                </Trigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </ToggleButton.Style>
+                                                </ToggleButton>
+
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <ComboBox Grid.Column="0" Margin="0,0,2,0" FontSize="11" 
+                                                              ItemsSource="{Binding AvailableFiles}" SelectedItem="{Binding SelectedFile}"/>
+                                                    <ComboBox Grid.Column="1" Margin="2,0,0,0" FontSize="11"
+                                                              ItemsSource="{Binding AvailableBlocks}" SelectedItem="{Binding SelectedBlock}"/>
+                                                </Grid>
+                                            </DockPanel>
                                         </Border>
-                                        <DataGrid IsReadOnly="True" BorderThickness="0"
-                                                  ItemsSource="{Binding DisplayTable}"
-                                                  AutoGenerateColumns="True"/>
-                                    </DockPanel>
+
+                                        <Grid Grid.Row="1">
+                                            <DataGrid Style="{StaticResource VisibleIfTable}"
+                                                      IsReadOnly="True" BorderThickness="0" Background="White"
+                                                      ItemsSource="{Binding DisplayTable}"
+                                                      AutoGenerateColumns="False" CanUserSortColumns="False" 
+                                                      RowHeaderWidth="0" ColumnWidth="*">
+
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Binding="{Binding Col0}">
+                                                        <DataGridTextColumn.HeaderTemplate>
+                                                            <DataTemplate>
+                                                                <ComboBox ItemsSource="{Binding DataContext.AvailableColumns, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                          SelectedItem="{Binding DataContext.TableCol1, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                          DisplayMemberPath="Header" BorderThickness="0" Background="Transparent" FontSize="10" FontWeight="Bold"/>
+                                                            </DataTemplate>
+                                                        </DataGridTextColumn.HeaderTemplate>
+                                                    </DataGridTextColumn>
+
+                                                    <DataGridTextColumn Binding="{Binding Col1}">
+                                                        <DataGridTextColumn.HeaderTemplate>
+                                                            <DataTemplate>
+                                                                <ComboBox ItemsSource="{Binding DataContext.AvailableColumns, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                          SelectedItem="{Binding DataContext.TableCol2, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                          DisplayMemberPath="Header" BorderThickness="0" Background="Transparent" FontSize="10" FontWeight="Bold"/>
+                                                            </DataTemplate>
+                                                        </DataGridTextColumn.HeaderTemplate>
+                                                    </DataGridTextColumn>
+
+                                                    <DataGridTextColumn Binding="{Binding Col2}">
+                                                        <DataGridTextColumn.HeaderTemplate>
+                                                            <DataTemplate>
+                                                                <ComboBox ItemsSource="{Binding DataContext.AvailableColumns, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                          SelectedItem="{Binding DataContext.TableCol3, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                          DisplayMemberPath="Header" BorderThickness="0" Background="Transparent" FontSize="10" FontWeight="Bold"/>
+                                                            </DataTemplate>
+                                                        </DataGridTextColumn.HeaderTemplate>
+                                                    </DataGridTextColumn>
+
+                                                    <DataGridTextColumn Binding="{Binding Col3}">
+                                                        <DataGridTextColumn.HeaderTemplate>
+                                                            <DataTemplate>
+                                                                <ComboBox ItemsSource="{Binding DataContext.AvailableColumns, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                          SelectedItem="{Binding DataContext.TableCol4, RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                                                          DisplayMemberPath="Header" BorderThickness="0" Background="Transparent" FontSize="10" FontWeight="Bold"/>
+                                                            </DataTemplate>
+                                                        </DataGridTextColumn.HeaderTemplate>
+                                                    </DataGridTextColumn>
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+
+                                            <Grid Visibility="{Binding IsChartMode, Converter={StaticResource BoolToVisConverter}}">
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="*"/>
+                                                </Grid.RowDefinitions>
+
+                                                <UniformGrid Grid.Row="0" Columns="2" Background="#F0F9FF" Margin="2">
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <TextBlock Text="X轴:" VerticalAlignment="Center" FontSize="10" Foreground="#2563EB"/>
+                                                        <ComboBox ItemsSource="{Binding AvailableColumns}" SelectedItem="{Binding ChartXCol}" DisplayMemberPath="Header" BorderThickness="0" Width="80" FontSize="10"/>
+                                                    </StackPanel>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <TextBlock Text="Y轴:" VerticalAlignment="Center" FontSize="10" Foreground="#2563EB"/>
+                                                        <ComboBox ItemsSource="{Binding AvailableColumns}" SelectedItem="{Binding ChartYCol}" DisplayMemberPath="Header" BorderThickness="0" Width="80" FontSize="10"/>
+                                                    </StackPanel>
+                                                </UniformGrid>
+
+                                                <lvc:CartesianChart Grid.Row="1" Margin="5" Series="{Binding ChartSeries}">
+                                                    <lvc:CartesianChart.AxisX>
+                                                        <lvc:Axis Title="{Binding XAxisTitle}" />
+                                                    </lvc:CartesianChart.AxisX>
+                                                    <lvc:CartesianChart.AxisY>
+                                                        <lvc:Axis Title="{Binding YAxisTitle}" />
+                                                    </lvc:CartesianChart.AxisY>
+                                                </lvc:CartesianChart>
+                                            </Grid>
+                                        </Grid>
+                                    </Grid>
                                 </Border>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
@@ -120,27 +228,16 @@
             <GroupBox Header="参数趋势与对比分析" Grid.Column="2" Margin="6" BorderBrush="#D1D5DB">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Top" Margin="5">
-                        <TextBlock Text="目标文件" Margin="0,0,0,3" FontSize="11" Foreground="#666"/>
-                        <ComboBox Margin="0,0,0,8" />
-
-                        <TextBlock Text="目标数据块" Margin="0,0,0,3" FontSize="11" Foreground="#666"/>
-                        <ComboBox Margin="0,0,0,8" />
-
                         <TextBlock Text="对比参数列" Margin="0,0,0,3" FontSize="11" Foreground="#666"/>
                         <ComboBox Margin="0,0,0,12" />
-
                         <Button Content="📊 导出全版本横向对比表" Height="35" Margin="0,0,0,10" 
-                                Background="#F0F7FF" BorderBrush="#2563EB"
-                                Command="{Binding ExportComparisonCommand}"/>
+                                Background="#F0F7FF" BorderBrush="#2563EB" Command="{Binding ExportComparisonCommand}"/>
                         <Separator Margin="0,5"/>
                     </StackPanel>
-
                     <Border DockPanel.Dock="Top" Height="220" Background="#F3F4F6" Margin="5" CornerRadius="4" BorderBrush="#E5E7EB" BorderThickness="1">
-                        <TextBlock Text="[ 趋势折线图预览 ]" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#9CA3AF"/>
+                        <TextBlock Text="[ 趋势图预留位 ]" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#9CA3AF"/>
                     </Border>
-
-                    <DataGrid Margin="5" IsReadOnly="True" BorderBrush="#EEE" Background="White" 
-                              ItemsSource="{Binding ComparisonTable}"/>
+                    <DataGrid Margin="5" IsReadOnly="True" BorderBrush="#EEE" Background="White" ItemsSource="{Binding ComparisonTable}"/>
                 </DockPanel>
             </GroupBox>
         </Grid>

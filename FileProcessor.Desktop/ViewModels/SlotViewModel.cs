@@ -1,9 +1,18 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using FileProcessor.Desktop.Helpers;
+using FileProcessor.Core.Models;
+using FileProcessor.Desktop.Models;
 using FileProcessor.Mediator;
 using FileProcessor.Mediator.Models;
+// --- 引入 LiveCharts 0.9.7 经典版命名空间 ---
+using LiveCharts;
+using LiveCharts.Defaults;
+using LiveCharts.Wpf;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Linq;
+// 强行指定 ColumnDefinition 的归属，防止与 WPF 控件冲突
+using ColumnDefinition = FileProcessor.Core.Models.ColumnDefinition;
 
 namespace FileProcessor.Desktop.ViewModels
 {
@@ -12,115 +21,274 @@ namespace FileProcessor.Desktop.ViewModels
         private readonly DataCoordinator _coordinator;
         private readonly int _index;
 
-        // --- 状态恢复防抖锁 ---
         private bool _isRestoringState = false;
+        private bool _isUpdatingColumns = false;
+        private ProcessedResult? _currentRawData;
+
+        /// <summary>
+        /// 独立于具体数据版本的插槽显示状态记忆对象
+        /// </summary>
+        private readonly SlotDisplayState _displayState = new SlotDisplayState();
 
         public SlotViewModel(DataCoordinator coordinator, int index)
         {
             _coordinator = coordinator;
             _index = index;
 
-            // 订阅协调器数据变更事件
             _coordinator.SlotDataChanged += (idx, data) => {
                 if (idx == _index)
                 {
-                    // 核心：转发到 UI 线程更新 DataTable
                     System.Windows.Application.Current.Dispatcher.Invoke(() => {
-                        DisplayTable = data?.ToDataTable();
+                        _currentRawData = data;
                         Status = data != null ? SlotStatus.Ready : SlotStatus.NoData;
+                        InitializeColumns();
                     });
                 }
             };
         }
 
+        // ==========================================
+        // 1. 基础状态
+        // ==========================================
         [ObservableProperty] private string? _selectedFile;
         [ObservableProperty] private string? _selectedBlock;
-        [ObservableProperty] private DataTable? _displayTable;
         [ObservableProperty] private SlotStatus _status = SlotStatus.Empty;
 
         public ObservableCollection<string> AvailableFiles { get; } = new();
         public ObservableCollection<string> AvailableBlocks { get; } = new();
 
+        // ==========================================
+        // 2. 视图切换与动态列
+        // ==========================================
+        [ObservableProperty] private bool _isChartMode = false;
+        [ObservableProperty] private DataTable? _displayTable;
+
+        public ObservableCollection<ColumnDefinition> AvailableColumns { get; } = new();
+
+        // --- 表格模式 4 列 ---
+        [ObservableProperty] private ColumnDefinition? _tableCol1;
+        [ObservableProperty] private ColumnDefinition? _tableCol2;
+        [ObservableProperty] private ColumnDefinition? _tableCol3;
+        [ObservableProperty] private ColumnDefinition? _tableCol4;
+
+        // --- 图表模式 XY 轴 ---
+        [ObservableProperty] private ColumnDefinition? _chartXCol;
+        [ObservableProperty] private ColumnDefinition? _chartYCol;
+
+        // --- LiveCharts 0.9.7 专属属性 ---
+        [ObservableProperty] private SeriesCollection? _chartSeries;
+        [ObservableProperty] private string _xAxisTitle = "";
+        [ObservableProperty] private string _yAxisTitle = "";
+
+
+        // ==========================================
+        // 5. 核心拦截与智能转换逻辑
+        // ==========================================
+        private void InitializeColumns()
+        {
+            if (_currentRawData?.Columns == null || _currentRawData.Columns.Count == 0)
+            {
+                AvailableColumns.Clear();
+                DisplayTable = null;
+                ChartSeries = null;
+                return;
+            }
+
+            _isUpdatingColumns = true;
+            try
+            {
+                AvailableColumns.Clear();
+                foreach (var col in _currentRawData.Columns)
+                {
+                    AvailableColumns.Add(col);
+                }
+
+                var floorCol = AvailableColumns.FirstOrDefault(c => c.Header.Contains("层号") || c.Key.Contains("Floor"));
+                var towerCol = AvailableColumns.FirstOrDefault(c => c.Header.Contains("塔号") || c.Key.Contains("Tower"));
+                var dataCols = AvailableColumns.Where(c => c != floorCol && c != towerCol).ToList();
+
+                // 【微调点1】：尝试寻找上一版记忆的列是否存在于当前可用列中
+                var memT1 = AvailableColumns.FirstOrDefault(c => c.Key == _displayState.TableCol1Key);
+                var memT2 = AvailableColumns.FirstOrDefault(c => c.Key == _displayState.TableCol2Key);
+                var memT3 = AvailableColumns.FirstOrDefault(c => c.Key == _displayState.TableCol3Key);
+                var memT4 = AvailableColumns.FirstOrDefault(c => c.Key == _displayState.TableCol4Key);
+                var memCX = AvailableColumns.FirstOrDefault(c => c.Key == _displayState.ChartXColKey);
+                var memCY = AvailableColumns.FirstOrDefault(c => c.Key == _displayState.ChartYColKey);
+
+                // 【微调点2】：记忆优先 (memXX ??)，如果不存在则直接跳过，丝滑退回原有的编程逻辑
+                TableCol1 = memT1 ?? floorCol ?? (AvailableColumns.Count > 0 ? AvailableColumns[0] : null);
+                TableCol2 = memT2 ?? towerCol ?? (AvailableColumns.Count > 1 ? AvailableColumns[1] : null);
+                TableCol3 = memT3 ?? (dataCols.Count > 0 ? dataCols[0] : (AvailableColumns.Count > 2 ? AvailableColumns[2] : null));
+                TableCol4 = memT4 ?? (dataCols.Count > 1 ? dataCols[1] : (AvailableColumns.Count > 3 ? AvailableColumns[3] : null));
+
+                ChartYCol = memCY ?? floorCol ?? (AvailableColumns.Count > 0 ? AvailableColumns[0] : null);
+                ChartXCol = memCX ?? (dataCols.Count > 0 ? dataCols[0] : (AvailableColumns.Count > 1 ? AvailableColumns[1] : null));
+            }
+            finally
+            {
+                _isUpdatingColumns = false;
+                BuildDisplayTable();
+                BuildChartSeries();
+            }
+        }
+
         /// <summary>
-        /// 刷新可用文件列表，并在刷新前后保持用户的选择状态（记忆功能）。
-        /// 核心修复：通过强制置空打断 MVVM 相同值不通知的拦截机制，确保 ComboBox 视图同步。
+        /// 构建动态的 4 列 DataTable (重构为适配自定义表头的固定列名机制)
         /// </summary>
+        private void BuildDisplayTable()
+        {
+            if (_currentRawData == null || _isUpdatingColumns) return;
+
+            var dt = new DataTable();
+            var selectedCols = new[] { TableCol1, TableCol2, TableCol3, TableCol4 };
+
+            // 1. 构建固定的内部列名，方便 XAML 稳定绑定
+            for (int i = 0; i < 4; i++)
+            {
+                dt.Columns.Add(new DataColumn($"Col{i}"));
+            }
+
+            // 2. 映射投影数据
+            foreach (var rowDict in _currentRawData.Rows)
+            {
+                var dr = dt.NewRow();
+                for (int i = 0; i < 4; i++)
+                {
+                    var colDef = selectedCols[i];
+                    // 如果这列用户没选(null)，或者底层没数据，就填空字符串
+                    dr[$"Col{i}"] = (colDef != null && rowDict.TryGetValue(colDef.Key, out var val)) ? val : string.Empty;
+                }
+                dt.Rows.Add(dr);
+            }
+
+            DisplayTable = dt;
+        }
+
+        /// <summary>
+        /// 构建 0.9.7 版本的图表数据
+        /// </summary>
+        private void BuildChartSeries()
+        {
+            if (_currentRawData == null || _isUpdatingColumns || ChartXCol == null || ChartYCol == null) return;
+
+            // 0.9.7 使用 ChartValues 容器
+            var values = new ChartValues<ObservablePoint>();
+
+            foreach (var rowDict in _currentRawData.Rows)
+            {
+                if (rowDict.TryGetValue(ChartXCol.Key, out string? xStr) &&
+                    rowDict.TryGetValue(ChartYCol.Key, out string? yStr))
+                {
+                    if (double.TryParse(xStr, out double xVal) && double.TryParse(yStr, out double yVal))
+                    {
+                        values.Add(new ObservablePoint(xVal, yVal));
+                    }
+                }
+            }
+
+            // 更新 0.9.7 的 SeriesCollection
+            ChartSeries = new SeriesCollection
+            {
+                new LineSeries
+                {
+                    Title = ChartXCol.Header, // 图例名称
+                    Values = values,
+                    PointGeometrySize = 8,    // 数据点大小
+                    LineSmoothness = 0        // 0代表直线，适合工程类数据
+                }
+            };
+
+            // 简单直接的字符串绑定坐标轴名称
+            XAxisTitle = ChartXCol.Header;
+            YAxisTitle = ChartYCol.Header;
+        }
+
+        // 【微调点3】：展开属性改变的钩子，保存用户的选择。
+        // 使用 !_isUpdatingColumns 判断，防止程序初始化列时的自动赋值冲刷掉用户的真实记忆
+        partial void OnTableCol1Changed(ColumnDefinition? value)
+        {
+            if (!_isUpdatingColumns && value != null) _displayState.TableCol1Key = value.Key;
+            BuildDisplayTable();
+        }
+
+        partial void OnTableCol2Changed(ColumnDefinition? value)
+        {
+            if (!_isUpdatingColumns && value != null) _displayState.TableCol2Key = value.Key;
+            BuildDisplayTable();
+        }
+
+        partial void OnTableCol3Changed(ColumnDefinition? value)
+        {
+            if (!_isUpdatingColumns && value != null) _displayState.TableCol3Key = value.Key;
+            BuildDisplayTable();
+        }
+
+        partial void OnTableCol4Changed(ColumnDefinition? value)
+        {
+            if (!_isUpdatingColumns && value != null) _displayState.TableCol4Key = value.Key;
+            BuildDisplayTable();
+        }
+
+        partial void OnChartXColChanged(ColumnDefinition? value)
+        {
+            if (!_isUpdatingColumns && value != null) _displayState.ChartXColKey = value.Key;
+            BuildChartSeries();
+        }
+
+        partial void OnChartYColChanged(ColumnDefinition? value)
+        {
+            if (!_isUpdatingColumns && value != null) _displayState.ChartYColKey = value.Key;
+            BuildChartSeries();
+        }
+
         public void RefreshFileList()
         {
-            // 开启防抖锁：防止在强制置空和恢复时，触发 OnSelectedFileChanged 导致不必要的联动
             _isRestoringState = true;
             try
             {
-                // 1. 【记忆】暂存当前用户的选择状态
                 string? cachedFile = SelectedFile;
                 string? cachedBlock = SelectedBlock;
 
-                // ---------------------------------------------------------
-                // 【核心修复点】强制置空
-                // 必须在这里置为 null，否则后续恢复相同字符串时，MVVM 框架
-                // 会因为“值未改变”而拒绝通知 UI，导致 ComboBox 选项视觉丢失。
-                // ---------------------------------------------------------
                 SelectedFile = null;
                 SelectedBlock = null;
 
-                // 2. 刷新文件下拉列表
                 AvailableFiles.Clear();
                 foreach (var f in _coordinator.GetAvailableFiles())
                 {
                     AvailableFiles.Add(f);
                 }
 
-                // 3. 【恢复】检查刚才选的文件是否在新列表中
                 if (!string.IsNullOrEmpty(cachedFile) && AvailableFiles.Contains(cachedFile))
                 {
-                    // 此时从 null 变回有值，必定触发 PropertyChanged，UI 下拉框会立刻选中此项
                     SelectedFile = cachedFile;
-
-                    // 4. 【级联恢复】手动重新加载该文件对应的可用数据块列表
                     AvailableBlocks.Clear();
                     foreach (var b in _coordinator.GetBlocksForFile(cachedFile))
                     {
                         AvailableBlocks.Add(b);
                     }
 
-                    // 检查刚才选的数据块是否也在新列表中
                     if (!string.IsNullOrEmpty(cachedBlock) && AvailableBlocks.Contains(cachedBlock))
                     {
-                        // 强制唤醒第二个 ComboBox
                         SelectedBlock = cachedBlock;
                     }
                 }
                 else
                 {
-                    // 如果文件真的被删除了，或者之前没有选择，保持清空状态
                     AvailableBlocks.Clear();
                 }
             }
             finally
             {
-                // 无论是否报错，强制释放防抖锁，恢复正常的 UI 事件响应
                 _isRestoringState = false;
             }
         }
 
-        /// <summary>
-        /// 当用户在 UI 上手动更改选中的文件时触发。
-        /// 负责清空旧数据块并加载新文件的数据块列表。
-        /// </summary>
-        /// <param name="value">新选中的文件名</param>
         partial void OnSelectedFileChanged(string? value)
         {
-            // 【保护机制】如果当前正在执行记忆恢复逻辑，则跳过默认的清理动作
-            // 数据的级联恢复交由 RefreshFileList 方法手动精确控制
             if (_isRestoringState) return;
-
-            // 如果是用户手动切换文件，重置次级选项
             AvailableBlocks.Clear();
             SelectedBlock = null;
-
             if (string.IsNullOrEmpty(value)) return;
-
-            // 加载新文件对应的可用数据块
             foreach (var b in _coordinator.GetBlocksForFile(value))
             {
                 AvailableBlocks.Add(b);
@@ -129,29 +297,8 @@ namespace FileProcessor.Desktop.ViewModels
 
         partial void OnSelectedBlockChanged(string? value)
         {
-            // value 是用户选中的中文名，例如 "工况20 X方向..."
             if (!string.IsNullOrEmpty(SelectedFile) && !string.IsNullOrEmpty(value))
             {
-                // 1. [核心修复] 反查标准 ID
-                // 去问 Coordinator：在这个文件里，在这个版本下，这个中文名对应的原始 ID 是啥？
-                var candidates = _coordinator.GetBlocksForFile(SelectedFile);
-                // 注意：GetBlocksForFile 只返回了 string。我们需要更详细的信息。
-
-                // 建议：直接调用 SnapshotManager 的查询接口（通过 Coordinator 暴露的）
-                // 或者，我们修改 Coordinator.ConfigureSlot 让它智能一点，或者在这里查。
-
-                // 最稳妥的写法（利用现有接口）：
-                // 我们需要 Coordinator 提供一个方法：GetStandardName(fileName, displayName)
-                // 如果没有，我们就在这里“笨”办法查一下：
-
-                // 假设 Coordinator 有个方法能拿到 ProcessedResult 列表
-                // 如果没有，建议在 DataCoordinator 加一个：
-                // public IEnumerable<ProcessedResult> GetFullResultsForFile(string fileName) 
-                // { return _snapshotManager.GetResultsByFile(ActiveViewVersionId, fileName); }
-
-                // 既然我们现在不想改 Coordinator 接口，我们可以利用 AvailableBlocks 的对应关系
-                // 但最简单的还是去 DataCoordinator 加这个查找逻辑。
-
                 _coordinator.ConfigureSlot(_index, SelectedFile, value);
             }
         }

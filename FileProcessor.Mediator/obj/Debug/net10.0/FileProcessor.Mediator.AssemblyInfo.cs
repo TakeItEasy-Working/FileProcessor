@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FileProcessor.Mediator")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0a8e3eb4a4dd6a919cad1a68ea470184e3a09fae")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ad48020656d9ea1f6dd0279621b1d98b6226fb79")]
 [assembly: System.Reflection.AssemblyProductAttribute("FileProcessor.Mediator")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FileProcessor.Mediator")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

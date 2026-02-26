@@ -56,12 +56,29 @@ namespace FileProcessor.Desktop.ViewModels
         {
             try
             {
-                StatusText = "正在初始化引擎...";
+                StatusText = "正在清理历史数据并初始化引擎...";
                 StatusColor = "#F39C12"; // 橙色表示处理中
 
-                // 清理旧状态
+                // 1. 命令底层数据枢纽彻底清空旧项目的解析结果
+                // (注意：您需要在 DataCoordinator.cs 中添加对应的 ClearAllData 方法)
+                _coordinator.ClearAllData();
+
+                // 2. 清理 UI 层的版本历史记录与选中状态
                 VersionHistory.Clear();
+                SelectedVersion = null;
                 VersionHistory.Add("LIVE 实时状态");
+
+                // 3. 强行重置所有插槽（回归白纸状态，切断与旧数据的任何绑定）
+                foreach (var slot in Slots)
+                {
+                    slot.SelectedFile = null;
+                    slot.SelectedBlock = null;
+                    slot.AvailableFiles.Clear();
+                    slot.AvailableBlocks.Clear();
+                    slot.DisplayTable = null;
+                    slot.ChartSeries = null;
+                    slot.Status = FileProcessor.Mediator.Models.SlotStatus.Empty;
+                }
 
                 // 1. 启动监控
                 // 由于我们在内部实现了静默扫描，这里可以用 Task.Run 跑防止 UI 彻底卡死
