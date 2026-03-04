@@ -4,24 +4,34 @@ using FileProcessor.Engine.Runtime;
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using FileProcessor.DebugHelpers;
+using System.IO;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace FileProcessor.Infrastructure.Services
 {
     /// <summary>
-    /// 增强型项目监控服务：
-    /// 实现基于 Hash 的智能去重与哨兵信号处理。
-    /// 支持自动识别批次生命周期。
+    /// 增强型项目监控服务：文件夹全局防抖版 (Storm & Silence)
+    /// 无论文件生成顺序如何错乱，只以“文件夹彻底静默 2.5 秒”作为唯一安全收网的判定标准。
     /// </summary>
     public class ProjectMonitorService
     {
         private readonly FileOrchestrator _orchestrator;
         private readonly IVersionCoordinator _versionCoordinator;
-
-        // Hash 缓存：FilePath -> LastHash
-        // 用于在监控层直接拦截内容未变的文件，避免无效解析
         private readonly ConcurrentDictionary<string, string> _fileHashCache = new();
-        
         private FileSystemWatcher? _watcher;
+        private string _monitorRootPath = string.Empty;
+
+        // ==========================================
+        // 核心状态机设计
+        // ==========================================
+        private enum MonitorState { Idle, Calculating, Sweeping }
+        private MonitorState _currentState = MonitorState.Idle;
+
+        // 全局文件夹防抖计时器
+        private CancellationTokenSource? _folderDebounceCts;
+        private readonly object _stateLock = new object();
 
         public ProjectMonitorService(FileOrchestrator orchestrator, IVersionCoordinator versionCoordinator)
         {
@@ -29,20 +39,14 @@ namespace FileProcessor.Infrastructure.Services
             _versionCoordinator = versionCoordinator;
         }
 
-        /// <summary>
-        /// 启动对目标根目录的深度监控
-        /// </summary>
-        /// <param name="path">监控根路径（包含“设计结果”子目录）</param>
         public void StartScanning(string path)
         {
+            _monitorRootPath = path;
             if (!Directory.Exists(path)) return;
 
             try
             {
                 _fileHashCache.Clear();
-
-                // --- 阶段 1: 静默初始化 ---
-                // 通知编排器：接下来的文件不参与哨兵逻辑，全部锁死为 INITIAL_SCAN
                 _orchestrator.BeginInitialization();
 
                 var files = Directory.GetFiles(path, "*.out", SearchOption.AllDirectories);
@@ -50,30 +54,20 @@ namespace FileProcessor.Infrastructure.Services
                 {
                     string currentHash = CalculateFileHash(file);
                     _fileHashCache[file] = currentHash;
-
-                    // 直接调用初始化专用接口，绕过 HandleFileChange
                     _orchestrator.ProcessInitialFile(file, currentHash);
                 }
 
-                // 强制提交 INITIAL_SCAN（即使 files 为空也会执行，保证 UI 链路打通）
                 _orchestrator.EndInitialization();
-
-                // --- 阶段 2: 激活实时监控 ---
-                // 初始化完成后，再开启监听，防止初始扫描的文件触发二次解析
                 SetupWatcher(path);
             }
             catch (Exception ex)
             {
                 Log.Debug($"[ProjectMonitorService] 项目启动失败: {ex.Message}");
-                // 确保即使失败，初始化状态也被清理
                 _orchestrator.EndInitialization();
             }
-            Log.Debug($"[ProjectMonitorService] 智能监控已就绪: {path}");
+            Log.Debug($"[ProjectMonitorService] 全局防抖监控已就绪: {path}");
         }
 
-        /// <summary>
-        /// 配置并启动 FileSystemWatcher
-        /// </summary>
         private void SetupWatcher(string path)
         {
             _watcher?.Dispose();
@@ -84,114 +78,162 @@ namespace FileProcessor.Infrastructure.Services
                 Filter = "*.out"
             };
 
+            // 监听所有变动、创建、重命名、删除
             _watcher.Changed += (s, e) => HandleEvent(e.FullPath);
             _watcher.Created += (s, e) => HandleEvent(e.FullPath);
+            _watcher.Deleted += (s, e) => HandleEvent(e.FullPath);
+            _watcher.Renamed += (s, e) => HandleEvent(e.FullPath);
             _watcher.EnableRaisingEvents = true;
         }
 
-        /// <summary>
-        /// 初始扫描逻辑：遍历目录内所有已存在的 .out 文件
-        /// </summary>
-        /// <param name="rootPath"></param>
-        private void InitialScan(string rootPath)
-        {
-            // 扫描所有潜在的目标文件（这里简单以 .out 举例，可根据实际需求调整通配符）
-            try
-            {
-                var files = Directory.GetFiles(rootPath, "*.out", SearchOption.AllDirectories);
-                foreach (var file in files)
-                {
-                    HandleEvent(file);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[Monitor] 初始扫描失败: {ex.Message}");
-            }
-        }
-
-        /// <summary>
-        /// 核心处理逻辑：负责 Hash 过滤、哨兵识别、任务下发
-        /// </summary>
         private void HandleEvent(string fullPath)
         {
-            // 基础准入：确保文件存在
-            if (!File.Exists(fullPath)) return;
+            string fileName = Path.GetFileName(fullPath).ToLower();
+            string dirName = Path.GetDirectoryName(fullPath) ?? "";
 
-            try
+            // 只监控设计结果目录内的文件
+            if (!dirName.EndsWith("设计结果", StringComparison.OrdinalIgnoreCase)) return;
+
+            lock (_stateLock)
             {
-                string fileName = Path.GetFileName(fullPath).ToLower();
-                string dirName = Path.GetDirectoryName(fullPath) ?? "";
-
-                // --- A. 哨兵信号处理 (保持不变) ---
-                // 信号处理逻辑：检查“设计结果”目录下的哨兵文件
-                if (dirName.EndsWith("设计结果", StringComparison.OrdinalIgnoreCase))
+                // 1. 发现开门哨兵，进入雷暴静默期
+                if (fileName == "check.out" && _currentState == MonitorState.Idle)
                 {
-                    if (fileName == "check.out")
-                    {
-                        _versionCoordinator.StartNewBatch(fileName);
-                        return; // 哨兵文件本身不含业务数据，不解析
-                    }
-
-                    if (fileName == "mainjss.out")
-                    {
-                        _versionCoordinator.CommitCurrentBatch(fileName);
-                        return; // 哨兵文件不解析
-                    }
-                }
-
-                // --- B. 智能准入控制 (Hash Check) ---
-
-                // 1. 计算当前物理文件的 Hash
-                string currentHash = CalculateFileHash(fullPath);
-
-                // 2. 对比缓存：如果 Hash 没变，直接忽略本次事件
-                // (注意：如果是 InitialScan，缓存中没有，TryGetValue 返回 false，会继续执行)
-                if (_fileHashCache.TryGetValue(fullPath, out string? lastHash) && lastHash == currentHash)
-                {
-                    // 文件内容未实质变更，跳过
-                    Log.Debug($"[ProjectMonitorService] 文件Hash未改变，FullPath: {fullPath}");
+                    _currentState = MonitorState.Calculating;
+                    _versionCoordinator.StartNewBatch(fileName);
                     return;
                 }
 
-                // 3. 更新缓存
-                _fileHashCache[fullPath] = currentHash; //测试注释
-
-                // --- C. 构造任务并下发 ---
-
-                // 2. 业务数据流水线：无论是否在批次内，只要是关心的文件就进行解析
-                // context 会携带当时的 VersionId（可能是 Live，也可能是正在运行的 Batch_xxx）
-                var context = new ProcessingTaskContext
+                // 2. 发现结束信号的影子（不管它是不是最后一个）
+                // 只要出现了，就说明 YJK 已经算到了最后阶段，进入扫荡准备期
+                if (_currentState == MonitorState.Calculating &&
+                   (fileName == "warnning.out" || fileName == "wdcnl.out" || fileName == "wbrc.out" || fileName == "wmass.out"))
                 {
-                    FilePath = fullPath,
-                    FileHash = currentHash, // 将计算好的指纹注入上下文
-                    BoundVersionId = _versionCoordinator.CurrentVersionId,
-                    TriggerTime = DateTime.Now
-                };
+                    _currentState = MonitorState.Sweeping;
+                }
 
-                // 只有通过了 Hash 检查的任务才会进入编排器
-                // 将决策权交给 Orchestrator：
-                // 如果 isRecording 为 true，Orchestrator 会将其存入 _pendingTasks 字典实现“多变一”
-                // 如果 isRecording 为 false，Orchestrator 会立即执行并生成时间戳版本记录历史
-                _orchestrator.EnqueueTask(context, _versionCoordinator.IsRecording);
-            }
-            catch (IOException)
-            {
-                // 文件正被 YJK 写入占用中，忽略本次触发，等待下一次（通常写入完成会再次触发）
-            }
-            catch (Exception ex)
-            {
-                Log.Debug($"[ProjectMonitorService] 处理文件 {Path.GetFileName(fullPath)} 时异常: {ex.Message}");
+                // 3. 文件夹全局防抖倒计时 (核心机制)
+                // 只有处于 Idle(Live散件模式) 或 Sweeping(等待彻底结束) 时，文件变动才会触发倒计时
+                if (_currentState == MonitorState.Sweeping || _currentState == MonitorState.Idle)
+                {
+                    // 批次收尾需要静默 2.5 秒；散件修改只需静默 1 秒
+                    int delayMs = _currentState == MonitorState.Sweeping ? 2500 : 1000;
+
+                    // 只要有任何文件变动，无情打断之前的倒计时，重新开始算！
+                    _folderDebounceCts?.Cancel();
+                    _folderDebounceCts?.Dispose();
+                    _folderDebounceCts = new CancellationTokenSource();
+
+                    // 捕获触发时的状态
+                    MonitorState stateAtTrigger = _currentState;
+
+                    Task.Delay(delayMs, _folderDebounceCts.Token).ContinueWith(t =>
+                    {
+                        // 如果 2.5 秒内整个文件夹都没有任何文件变动，倒计时成功归零，执行扫荡！
+                        if (!t.IsCanceled)
+                        {
+                            ExecuteFolderSweep(stateAtTrigger);
+                        }
+                    });
+                }
             }
         }
 
         /// <summary>
-        /// 计算文件的 SHA256 哈希值
+        /// 文件夹彻底安静后的全量安全扫荡
         /// </summary>
+        private void ExecuteFolderSweep(MonitorState triggerState)
+        {
+            lock (_stateLock)
+            {
+                // 极低概率防抖：如果扫荡前又被拉回计算状态则取消
+                if (_currentState == MonitorState.Calculating) return;
+
+                Log.Debug($"[ProjectMonitorService] 文件夹彻底静默，模式: {triggerState}，开始全量安全入库...");
+
+                string versionId = triggerState == MonitorState.Sweeping
+                    ? _versionCoordinator.CurrentVersionId
+                    : _versionCoordinator.GenerateLiveVersionId();
+
+                bool hasDataChanges = false;
+                ProcessingTaskContext? pendingTask = null; // 用于实现“延迟一拍下发”
+
+                // 物理扫描整个文件夹，一个都不漏！
+                var files = Directory.GetFiles(_monitorRootPath, "*.out", SearchOption.AllDirectories);
+                foreach (var file in files)
+                {
+                    string fn = Path.GetFileName(file).ToLower();
+                    if (fn == "check.out" || fn == "mainjss.out" || fn == "warnning.out" || fn == "wdcnl.out" || fn == "wbrc.out") continue;
+
+                    try
+                    {
+                        string currentHash = CalculateFileHash(file);
+                        if (_fileHashCache.TryGetValue(file, out string? lastHash) && lastHash == currentHash)
+                        {
+                            continue; // 没变动的文件忽略
+                        }
+                        _fileHashCache[file] = currentHash;
+                        hasDataChanges = true;
+
+                        var context = new ProcessingTaskContext
+                        {
+                            FilePath = file,
+                            FileHash = currentHash,
+                            BoundVersionId = versionId, // 这里稳稳地绑住了 Batch_xxx
+                            TriggerTime = DateTime.Now,
+                            IsFinalCommit = false       // 默认不开枪
+                        };
+
+                        // 延迟一拍下发：为了把 IsFinalCommit 标记留在遍历的“最后一个文件”上
+                        if (pendingTask != null)
+                        {
+                            // 传回正确的 isRecording 状态
+                            _orchestrator.EnqueueTask(pendingTask, triggerState == MonitorState.Sweeping);
+                        }
+                        pendingTask = context;
+                    }
+                    catch (IOException) { /* 忽略极罕见冲突 */ }
+                    catch (Exception ex)
+                    {
+                        Log.Debug($"[ProjectMonitorService] 解析 {fn} 异常: {ex.Message}");
+                    }
+                }
+
+                // 处理遍历拿到的最后一个文件（如果是扫荡模式，给它戴上发令枪皇冠）
+                if (pendingTask != null)
+                {
+                    if (triggerState == MonitorState.Sweeping)
+                    {
+                        // 扣动扳机！触发 Orchestrator 清空它的暂存队列并解析
+                        pendingTask = pendingTask with { IsFinalCommit = true };
+                    }
+                    _orchestrator.EnqueueTask(pendingTask, triggerState == MonitorState.Sweeping);
+                }
+
+                // 给系统 0.5 秒钟的时间让数据彻底落库
+                Task.Delay(500).ContinueWith(_ =>
+                {
+                    // 注意：无论有没有数据变化，只要是批次扫荡，必须关门！
+                    // 否则系统会永远卡在 Recording 状态，导致后续全是 Bug
+                    if (triggerState == MonitorState.Sweeping)
+                    {
+                        _versionCoordinator.CommitCurrentBatch("Folder_Sweep_Done");
+                    }
+                    // 如果是散件 Live 模式，只有真发生了数据变化，才去打扰 UI 刷新
+                    else if (hasDataChanges)
+                    {
+                        _versionCoordinator.Commit(versionId);
+                    }
+                });
+
+                // 扫荡结束，恢复空闲态，迎接下一次操作
+                _currentState = MonitorState.Idle;
+            }
+        }
+
         private string CalculateFileHash(string filePath)
         {
             using var sha = SHA256.Create();
-            // 使用 FileShare.ReadWrite 避免与 YJK 抢占文件锁
             using var stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             byte[] hashBytes = sha.ComputeHash(stream);
             return BitConverter.ToString(hashBytes).Replace("-", "");

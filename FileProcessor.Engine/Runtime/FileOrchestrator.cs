@@ -1,5 +1,6 @@
 ﻿using FileProcessor.Core.Contracts;
 using FileProcessor.Core.Models;
+using FileProcessor.DebugHelpers;
 using FileProcessor.Engine.Registration;
 using System.Collections.Concurrent;
 using System.Text.RegularExpressions;
@@ -8,7 +9,7 @@ namespace FileProcessor.Engine.Runtime
 {
     /// <summary>
     /// 文件解析编排器：核心执行中枢。
-    /// 支持“延迟解析”策略，在 Batch 周期内只暂存任务，直到收到提交信号。
+    /// 支持“延迟解析”策略，在 Batch 周期内只暂存任务，直到收到发令枪信号。
     /// 实现批次暂存与实时解析的双轨制分流。
     /// </summary>
     public class FileOrchestrator
@@ -23,7 +24,7 @@ namespace FileProcessor.Engine.Runtime
 
         // 标记当前是否处于项目初次加载阶段
         private bool _isInitializing = false;
-        private const string InitialVersionId = "INITIAL_SCAN";
+        private string _currentInitVersionId = "Init_Standby";
 
         public FileOrchestrator(
             IEnumerable<IFileTemplate> templates,
@@ -37,48 +38,37 @@ namespace FileProcessor.Engine.Runtime
             _versionCoordinator = versionCoordinator;
         }
 
-        /// <summary>
-        /// 开启初始化模式。在此模式下，所有解析任务将强制归入 INITIAL_SCAN 版本，且不触发哨兵逻辑。
-        /// </summary>
-        public void BeginInitialization() => _isInitializing = true;
+        public void BeginInitialization()
+        {
+            _isInitializing = true;
+            // 每次启动监控时，生成带有精确时间戳的唯一初始版本号
+            _currentInitVersionId = $"Init_{DateTime.Now:yyyyMMdd_HHmmss}";
+        }
 
-        /// <summary>
-        /// 结束初始化模式，并手动提交 INITIAL_SCAN 版本。
-        /// </summary>
         public void EndInitialization()
         {
             _isInitializing = false;
-            // 无论初始化期间是否发现文件，都提交该版本以确保 UI 逻辑闭环
-            _versionCoordinator.Commit(InitialVersionId);
+            // 提交这个动态生成的版本号
+            _versionCoordinator.Commit(_currentInitVersionId);
         }
 
-        /// <summary>
-        /// 处理初始化阶段的单个文件。该方法绕过延迟队列和哨兵状态检查。
-        /// </summary>
-        /// <param name="filePath">物理路径</param>
-        /// <param name="hash">预计算的文件哈希</param>
         public void ProcessInitialFile(string filePath, string hash)
         {
             var context = new ProcessingTaskContext
             {
                 FilePath = filePath,
                 FileHash = hash,
-                BoundVersionId = InitialVersionId, // 强制归并到初始化版本
+                BoundVersionId = _currentInitVersionId,
                 TriggerTime = DateTime.Now
             };
-
-            // 立即执行解析并存入快照库
             ExecuteSingleTask(context);
         }
 
         /// <summary>
         /// 接收监控层发来的处理请求
         /// </summary>
-        /// <param name="context">任务上下文</param>
-        /// <param name="isRecording">是否处于批次录制状态</param>
         public void EnqueueTask(ProcessingTaskContext context, bool isRecording)
         {
-            // 如果是在初始化后由于某些原因误触发，重定向到初始化逻辑
             if (_isInitializing)
             {
                 ProcessInitialFile(context.FilePath, context.FileHash);
@@ -87,29 +77,43 @@ namespace FileProcessor.Engine.Runtime
 
             if (isRecording)
             {
-                // A轨：录制模式
-                // 核心逻辑：如果在录制中，只存不练，且相同路径会覆盖之前的 Context
+                // A轨：录制模式 (只存不练)
                 _pendingTasks[context.FilePath] = context;
+
+                // ==========================================
+                // 【核心修复 1】：识别发令枪！
+                // 看到 IsFinalCommit，立刻清空并执行所有暂存任务！
+                // ==========================================
+                if (context.IsFinalCommit)
+                {
+                    FlushBatchTasks();
+                }
             }
             else
             {
-                // B轨：实时模式 - 自动注入时间戳版本并立即执行
-                var liveVersionId = _versionCoordinator.GenerateLiveVersionId();
-                var liveContext = context with { BoundVersionId = liveVersionId };
-                // 非录制状态（Live 模式），直接执行
+                // B轨：实时模式
+                // ==========================================
+                // 【核心修复 2】：尊重外部传来的版本号
+                // 如果 Monitor 已经给分配了 Live_xxx，就用它的；否则才兜底生成
+                // ==========================================
+                string versionId = context.BoundVersionId.StartsWith("Live_")
+                    ? context.BoundVersionId
+                    : _versionCoordinator.GenerateLiveVersionId();
+
+                var liveContext = context with { BoundVersionId = versionId };
                 ExecuteSingleTask(liveContext);
             }
         }
 
         /// <summary>
-        /// 当 mainjss.out 到达时，由外部调用清空并执行所有暂存任务
+        /// 清空并并行执行所有暂存任务
         /// </summary>
         public void FlushBatchTasks()
         {
             var tasks = _pendingTasks.Values.ToList();
             _pendingTasks.Clear();
 
-            // 批次任务通常较大，建议并行执行
+            // 批次任务通常较大，并行执行
             Parallel.ForEach(tasks, task =>
             {
                 ExecuteSingleTask(task);
@@ -131,7 +135,6 @@ namespace FileProcessor.Engine.Runtime
 
             foreach (var rawBlock in rawBlocks)
             {
-                // 注入监控层预计算的 Hash，确保每个块都有溯源指纹
                 rawBlock.FileHash = context.FileHash;
 
                 var processors = _processorRegistry.GetProcessorsForBlock(rawBlock.BlockName);
@@ -142,12 +145,12 @@ namespace FileProcessor.Engine.Runtime
                         var result = processor.Process(rawBlock);
                         if (result != null)
                         {
-                            // 关键补全：由编排器维护结果的版本身份
                             result.VersionId = context.BoundVersionId;
                             result.SourceFileName = context.FileName;
                             result.Metadata["OriginHash"] = context.FileHash;
 
                             _snapshotManager.AddSnapshot(result);
+                            Log.Debug($"[Orchestrator入库] 文件:{result.SourceFileName}, 块:{result.StandardBlockName}, 版本号:{result.VersionId}");
                         }
                     }
                     catch (Exception ex)

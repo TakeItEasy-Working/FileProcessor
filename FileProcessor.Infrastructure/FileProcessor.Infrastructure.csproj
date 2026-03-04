@@ -7,6 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="EPPlusFree" Version="4.5.3.8" />
+    <PackageReference Include="QuestPDF" Version="2026.2.2" />
+    <PackageReference Include="System.Drawing.Common" Version="4.7.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\FileProcessor.DebugHelpers\FileProcessor.DebugHelpers.csproj" />
     <ProjectReference Include="..\FileProcessor.Engine\FileProcessor.Engine.csproj" />
     <ProjectReference Include="..\FileProcessor.Core\FileProcessor.Core.csproj" />

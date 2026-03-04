@@ -35,6 +35,26 @@ namespace FileProcessor.Core.Contracts
         IEnumerable<ProcessedResult> GetHistory(string standardBlockName);
 
         /// <summary>
+        /// 获取某个版本下已成功解析的文件总数
+        /// </summary>
+        int GetParsedFileCount(string versionId);
+
+        /// <summary>
+        /// 扫描指定版本中的所有解析数据，提取并去重所有出现的塔号 (Tower)。
+        /// 采用 HashSet 确保极速去重，并按照自然排序返回。
+        /// </summary>
+        /// <param name="versionId">目标版本号</param>
+        /// <returns>去重后的塔号集合（如 "1", "2", "3A"）</returns>
+        IEnumerable<string> GetAvailableTowers(string versionId);
+
+        /// <summary>
+        /// 获取指定版本下的所有解析数据快照
+        /// </summary>
+        /// <param name="versionId">版本号</param>
+        /// <returns>该版本下的全量数据结果</returns>
+        IEnumerable<ProcessedResult> GetSnapshotsByVersion(string versionId);
+
+        /// <summary>
         /// 清理所有缓存
         /// </summary>
         void Clear();

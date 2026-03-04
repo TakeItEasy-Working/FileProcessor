@@ -173,6 +173,23 @@ namespace FileProcessor.Mediator
         #region 元数据发现接口 (Query)
 
         /// <summary>
+        /// 获取某个版本下的全量底层解析数据，用于批量导出
+        /// </summary>
+        public IEnumerable<ProcessedResult> GetFullVersionData(string versionId)
+        {
+            return _snapshotManager.GetSnapshotsByVersion(versionId);
+        }
+
+        /// <summary>
+        /// 获取某个版本内已解析的文件数量
+        /// </summary>
+        public int GetParsedFileCount(string versionId)
+        {
+            // _snapshotManager 是 DataCoordinator 的私有字段
+            return _snapshotManager.GetParsedFileCount(versionId);
+        }
+
+        /// <summary>
         /// 获取当前选定版本中所有已解析的文件名列表。用于填充 UI 下拉框。
         /// </summary>
         /// <returns>文件名集合。</returns>
@@ -225,6 +242,40 @@ namespace FileProcessor.Mediator
                 slot.TargetFileName = null;
                 slot.TargetBlockName = null;
             }
+        }
+
+        // ==========================================
+        // [新增] 跨版本对比分析支持 (Cross-Version Analysis)
+        // ==========================================
+
+        /// <summary>
+        /// 获取用于跨版本对比的历史数据集合
+        /// </summary>
+        /// <param name="fileName">文件名</param>
+        /// <param name="rawBlockName">块名或显示名</param>
+        /// <returns>包含所有历史版本该块数据的集合</returns>
+        public IEnumerable<ProcessedResult> GetCrossVersionHistory(string fileName, string rawBlockName)
+        {
+            // 1. 先在当前活动版本中找到这个块，提取出它唯一的 StandardBlockName (跨版本基准 ID)
+            var currentResults = _snapshotManager.GetResultsByFile(ActiveViewVersionId, fileName);
+            var targetBlock = currentResults.FirstOrDefault(r =>
+                r.RawBlockName == rawBlockName || r.DisplayName == rawBlockName);
+
+            // 2. 如果找到了标准化 ID，直接向底层快照管理器索要它的全部历史前世今生
+            if (targetBlock != null && !string.IsNullOrEmpty(targetBlock.StandardBlockName))
+            {
+                return _snapshotManager.GetHistory(targetBlock.StandardBlockName);
+            }
+
+            return Enumerable.Empty<ProcessedResult>();
+        }
+
+        /// <summary>
+        /// 向上层 UI 暴露获取当前版本可用塔号的接口
+        /// </summary>
+        public IEnumerable<string> GetAvailableTowers(string versionId)
+        {
+            return _snapshotManager.GetAvailableTowers(versionId);
         }
 
         #endregion

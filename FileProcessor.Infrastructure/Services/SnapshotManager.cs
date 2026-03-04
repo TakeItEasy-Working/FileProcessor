@@ -50,6 +50,18 @@ namespace FileProcessor.Infrastructure.Services
         }
 
         /// <summary>
+        /// 获取某个版本下已成功解析的文件总数
+        /// </summary>
+        public int GetParsedFileCount(string versionId)
+        {
+            if (_storage.TryGetValue(versionId, out var fileResults))
+            {
+                return fileResults.Count;
+            }
+            return 0;
+        }
+
+        /// <summary>
         /// 查询特定版本下的所有文件名（Level 1）
         /// </summary>
         public IEnumerable<string> GetFileNames(string versionId)
@@ -108,6 +120,63 @@ namespace FileProcessor.Infrastructure.Services
             }
             // 按时间或版本标识排序，方便 UI 绘图
             return history.OrderBy(h => h.VersionId);
+        }
+
+        /// <summary>
+        /// 扫描指定版本中的所有解析数据，提取并去重所有出现的塔号 (Tower)。
+        /// 采用 HashSet 确保极速去重，并按照自然排序返回。
+        /// </summary>
+        /// <param name="versionId">目标版本号</param>
+        /// <returns>去重后的塔号集合（如 "1", "2", "3A"）</returns>
+        public IEnumerable<string> GetAvailableTowers(string versionId)
+        {
+            var towers = new HashSet<string>();
+
+            // 尝试获取该版本下的所有文件解析结果
+            if (_storage.TryGetValue(versionId, out var fileResults))
+            {
+                // 遍历每一个文件 -> 每一个数据块 -> 每一行数据
+                foreach (var results in fileResults.Values)
+                {
+                    foreach (var res in results)
+                    {
+                        foreach (var row in res.Rows)
+                        {
+                            // 如果这行数据包含 "Tower" 键，且值不为空，则收入囊中
+                            if (row.TryGetValue("Tower", out var tower) && !string.IsNullOrWhiteSpace(tower))
+                            {
+                                towers.Add(tower);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 排序返回（优先识别数字大小，否则按字母排）
+            return towers.OrderBy(t => t.PadLeft(4, '0'));
+        }
+
+        /// <summary>
+        /// 获取指定版本下的所有解析数据快照
+        /// </summary>
+        public IEnumerable<ProcessedResult> GetSnapshotsByVersion(string versionId)
+        {
+            var allResults = new List<ProcessedResult>();
+
+            if (_storage.TryGetValue(versionId, out var fileResults))
+            {
+                // 遍历该版本下的所有文件
+                foreach (var results in fileResults.Values)
+                {
+                    // 加锁读取，防止读取时恰好有后台线程在写入导致集合改变的异常
+                    lock (results)
+                    {
+                        allResults.AddRange(results);
+                    }
+                }
+            }
+
+            return allResults;
         }
 
         public void Clear() => _storage.Clear();

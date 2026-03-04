@@ -3,6 +3,7 @@ using FileProcessor.Core.Models;
 using FileProcessor.Desktop.Models;
 using FileProcessor.Mediator;
 using FileProcessor.Mediator.Models;
+using FileProcessor.Core.Helpers;
 // --- 引入 LiveCharts 0.9.7 经典版命名空间 ---
 using LiveCharts;
 using LiveCharts.Defaults;
@@ -301,6 +302,51 @@ namespace FileProcessor.Desktop.ViewModels
             {
                 _coordinator.ConfigureSlot(_index, SelectedFile, value);
             }
+        }
+
+        /// <summary>
+        /// 专供导出的清洗方法：根据当前模式（表格/图表）生成带真实表头的原生 DataTable
+        /// </summary>
+        public DataTable? GetExportDataTable()
+        {
+            if (_currentRawData == null || Status != SlotStatus.Ready) return null;
+
+            var dt = new DataTable();
+
+            if (IsChartMode)
+            {
+                // 图表模式：只导出 X 轴和 Y 轴的数据
+                if (ChartXCol == null || ChartYCol == null) return null;
+                dt.Columns.Add(ChartXCol.Header, typeof(object));
+                dt.Columns.Add(ChartYCol.Header, typeof(object));
+
+                foreach (var rowDict in _currentRawData.Rows)
+                {
+                    var dr = dt.NewRow();
+                    dr[0] = DataFormatHelper.ParseEngineNumber(rowDict.TryGetValue(ChartXCol.Key, out var x) ? x : "");
+                    dr[1] = DataFormatHelper.ParseEngineNumber(rowDict.TryGetValue(ChartYCol.Key, out var y) ? y : "");
+                    dt.Rows.Add(dr);
+                }
+            }
+            else
+            {
+                // 表格模式：导出当前选中的最多 4 列
+                var cols = new[] { TableCol1, TableCol2, TableCol3, TableCol4 }.Where(c => c != null).ToList();
+                if (!cols.Any()) return null;
+
+                foreach (var c in cols) dt.Columns.Add(c!.Header, typeof(object));
+
+                foreach (var rowDict in _currentRawData.Rows)
+                {
+                    var dr = dt.NewRow();
+                    for (int i = 0; i < cols.Count; i++)
+                    {
+                        dr[i] = DataFormatHelper.ParseEngineNumber(rowDict.TryGetValue(cols[i]!.Key, out var val) ? val : "");
+                    }
+                    dt.Rows.Add(dr);
+                }
+            }
+            return dt;
         }
     }
 }

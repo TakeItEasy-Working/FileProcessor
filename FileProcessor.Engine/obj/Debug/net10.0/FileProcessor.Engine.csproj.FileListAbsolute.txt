@@ -14,3 +14,5 @@ D:\3.Source\FileProcessor\FileProcessor.Engine\obj\Debug\net10.0\FileProcessor.E
 D:\3.Source\FileProcessor\FileProcessor.Engine\obj\Debug\net10.0\refint\FileProcessor.Engine.dll
 D:\3.Source\FileProcessor\FileProcessor.Engine\obj\Debug\net10.0\FileProcessor.Engine.pdb
 D:\3.Source\FileProcessor\FileProcessor.Engine\obj\Debug\net10.0\ref\FileProcessor.Engine.dll
+D:\3.Source\FileProcessor\FileProcessor.Engine\bin\Debug\net10.0\FileProcessor.DebugHelpers.dll
+D:\3.Source\FileProcessor\FileProcessor.Engine\bin\Debug\net10.0\FileProcessor.DebugHelpers.pdb

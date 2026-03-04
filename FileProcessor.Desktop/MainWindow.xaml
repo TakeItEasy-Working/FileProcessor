@@ -43,13 +43,16 @@
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0">
                     <TextBlock Text="当前塔号: " FontWeight="SemiBold" VerticalAlignment="Center" Margin="0,0,5,0"/>
                     <ComboBox Width="100" Height="26" 
-                              SelectedValue="{Binding CurrentTower}"
-                              SelectedValuePath="Content">
-                        <ComboBoxItem Content="1"/>
-                        <ComboBoxItem Content="2"/>
-                        <ComboBoxItem Content="3"/>
-                        <ComboBoxItem Content="All"/>
-                    </ComboBox>
+                              ItemsSource="{Binding AvailableTowers}"
+                              SelectedItem="{Binding CurrentTower}" />
+                </StackPanel>
+
+                <Separator Margin="10,0"/>
+
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0">
+                    <TextBlock Text="👀 当前查看版本: " Foreground="#666" VerticalAlignment="Center" FontWeight="SemiBold"/>
+                    <TextBlock Text="{Binding SelectedVersion.VersionId, TargetNullValue='未选择', FallbackValue='未选择'}" 
+                               FontWeight="Bold" Foreground="#2563EB" FontSize="13" VerticalAlignment="Center"/>
                 </StackPanel>
 
                 <Separator Margin="10,0"/>
@@ -61,9 +64,11 @@
 
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="240"/>
+                <ColumnDefinition Width="280" MinWidth="200" MaxWidth="500"/>
+                <ColumnDefinition Width="5"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="380"/>
+                <ColumnDefinition Width="5"/>
+                <ColumnDefinition Width="380" MinWidth="200" MaxWidth="500"/>
             </Grid.ColumnDefinitions>
 
             <Grid Grid.Column="0" Margin="6">
@@ -72,22 +77,74 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <GroupBox Header="计算版本记录" BorderBrush="#D1D5DB">
-                    <ListBox BorderThickness="0" Background="Transparent"
-                             ItemsSource="{Binding VersionHistory}"
-                             SelectedItem="{Binding SelectedVersion}">
+                    <ListBox ItemsSource="{Binding VersionHistory}" SelectedItem="{Binding SelectedVersion}" Margin="5" BorderThickness="0" Background="Transparent" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="White" BorderBrush="#E5E7EB" BorderThickness="1" CornerRadius="6" Margin="0,0,0,8" Padding="10" HorizontalAlignment="Stretch">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,6">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0" Text="{Binding VersionId}" 
+               FontWeight="Bold" Foreground="#1F2937" FontSize="13" 
+               TextTrimming="CharacterEllipsis" 
+               VerticalAlignment="Center" Margin="0,0,10,0"
+               ToolTip="{Binding VersionId}"/>
+                                            <Border Grid.Column="1" Background="#F3F4F6" CornerRadius="4" Padding="5,2" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding FileCount, StringFormat='文件: {0}'}" 
+                   Foreground="#6B7280" FontSize="11" FontWeight="SemiBold"/>
+                                            </Border>
+                                        </Grid>
+
+                                        <TextBox Text="{Binding Note, UpdateSourceTrigger=PropertyChanged}" 
+                                                 Style="{StaticResource {x:Type TextBox}}" 
+                                                 Background="#F9FAFB" 
+                                                 BorderBrush="#D1D5DB" 
+                                                 BorderThickness="1" 
+                                                 Padding="4" FontSize="12" Foreground="#4B5563"
+                                                 TextWrapping="Wrap" AcceptsReturn="True" MinHeight="26"
+                                                 ToolTip="在此输入版本备注（如：增加底层柱截面）"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
                     </ListBox>
                 </GroupBox>
                 <GroupBox Header="当前版本操作" Grid.Row="1" Margin="0,5,0,0" BorderBrush="#D1D5DB" Padding="5">
-                    <Button Content="📗 导出选中版本 (Excel)" Height="35" Margin="0,5" 
-                            Background="#EBFBEE" BorderBrush="#27AE60"
-                            Command="{Binding ExportCommand}"/>
+                    <Menu Background="Transparent" Margin="0,5" HorizontalAlignment="Stretch">
+                        <MenuItem Header="📥 导出选中版本 ▾" Height="35" Width="215"
+                                  Background="#EBFBEE" BorderBrush="#27AE60" BorderThickness="1" 
+                                  FontSize="13" Foreground="#1F2937">
+                            
+                            <MenuItem Header="📗 导出为 Excel 多页报表" 
+                                      Command="{Binding ExportCommand}" 
+                                      Padding="10,5" FontSize="12"/>
+                            
+                            <MenuItem Header="📕 导出为 PDF 工程计算书" 
+                                      Command="{Binding ExportPdfCommand}" 
+                                      Padding="10,5" FontSize="12"/>
+                        </MenuItem>
+                    </Menu>
                 </GroupBox>
             </Grid>
 
-            <Grid Grid.Column="1">
+            <GridSplitter Grid.Column="1" 
+                          Width="5" 
+                          HorizontalAlignment="Center" 
+                          VerticalAlignment="Stretch"
+                          Background="#D1D5DB" 
+                          Cursor="SizeWE" 
+                          ToolTip="拖动以调整侧边栏宽度"/>
+
+            <Grid Grid.Column="2">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
-                    <RowDefinition Height="220"/>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="220" MinHeight="200" MaxHeight="500"/>
                 </Grid.RowDefinitions>
 
                 <GroupBox Header="分项数据详情 (多视图插槽)" Margin="4">
@@ -100,7 +157,25 @@
 
                         <ItemsControl.ItemTemplate>
                             <DataTemplate DataType="{x:Type vm:SlotViewModel}">
-                                <Border BorderBrush="#E5E7EB" BorderThickness="1" Margin="3" Background="White">
+                                <Border BorderBrush="#E5E7EB" BorderThickness="1" Margin="3" Background="White"
+                                        Tag="{Binding DataContext, RelativeSource={RelativeSource AncestorType=Window}}">
+
+                                    <Border.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="📄 导出为新 Excel 文件..." 
+                                                      Command="{Binding PlacementTarget.Tag.ExportSlotToNewExcelCommand, 
+                                                RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                      CommandParameter="{Binding PlacementTarget.DataContext, 
+                                                RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+
+                                            <MenuItem Header="📥 追加到现有 Excel 文件..." 
+                                                      Command="{Binding PlacementTarget.Tag.AppendSlotToExcelCommand, 
+                                                RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                      CommandParameter="{Binding PlacementTarget.DataContext, 
+                                                RelativeSource={RelativeSource AncestorType=ContextMenu}}"/>
+                                        </ContextMenu>
+                                    </Border.ContextMenu>
+
                                     <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="Auto"/>
@@ -220,24 +295,82 @@
                     </ItemsControl>
                 </GroupBox>
 
-                <GroupBox Header="全局汇总数据 (固定展示)" Grid.Row="1" Margin="4" BorderBrush="#93C5FD" Background="White">
+                <GridSplitter Grid.Row="1" 
+                     Height="5" 
+                     HorizontalAlignment="Stretch"
+                     VerticalAlignment="Center"
+                     Background="#D1D5DB" 
+                     Cursor="SizeNS" 
+                     ToolTip="拖动以调整侧边栏高度"/>
+
+                <GroupBox Header="全局汇总数据 (固定展示)" Grid.Row="2" Margin="4" BorderBrush="#93C5FD" Background="White">
                     <DataGrid IsReadOnly="True" BorderThickness="0" ItemsSource="{Binding SummaryTable}"/>
                 </GroupBox>
             </Grid>
 
-            <GroupBox Header="参数趋势与对比分析" Grid.Column="2" Margin="6" BorderBrush="#D1D5DB">
+            <GridSplitter Grid.Column="3" 
+              Width="5" 
+              HorizontalAlignment="Center" 
+              VerticalAlignment="Stretch"
+              Background="#D1D5DB" 
+              Cursor="SizeWE" 
+              ToolTip="拖动以调整侧边栏宽度"/>
+
+            <GroupBox Header="参数趋势与对比分析" Grid.Column="4" Margin="6" BorderBrush="#D1D5DB">
                 <DockPanel>
                     <StackPanel DockPanel.Dock="Top" Margin="5">
-                        <TextBlock Text="对比参数列" Margin="0,0,0,3" FontSize="11" Foreground="#666"/>
-                        <ComboBox Margin="0,0,0,12" />
-                        <Button Content="📊 导出全版本横向对比表" Height="35" Margin="0,0,0,10" 
+
+                        <Grid Margin="0,0,0,10">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Text="📁 文件名 (File)" Grid.Row="0" Grid.Column="0" Margin="0,0,5,2" FontSize="11" Foreground="#666"/>
+                            <ComboBox Grid.Row="1" Grid.Column="0" Margin="0,0,5,8" 
+                                      ItemsSource="{Binding CompAvailableFiles}" SelectedItem="{Binding CompSelectedFile}"/>
+
+                            <TextBlock Text="📄 数据块 (Block)" Grid.Row="0" Grid.Column="1" Margin="5,0,0,2" FontSize="11" Foreground="#666"/>
+                            <ComboBox Grid.Row="1" Grid.Column="1" Margin="5,0,0,8"
+                                      ItemsSource="{Binding CompAvailableBlocks}" SelectedItem="{Binding CompSelectedBlock}"/>
+
+                            <TextBlock Text="↕️ 基准列 (Y轴,如楼层)" Grid.Row="2" Grid.Column="0" Margin="0,0,5,2" FontSize="11" Foreground="#666"/>
+                            <ComboBox Grid.Row="3" Grid.Column="0" Margin="0,0,5,8"
+                                      ItemsSource="{Binding CompAvailableColumns}" SelectedItem="{Binding CompSelectedYAxis}"
+                                      DisplayMemberPath="Header"/>
+
+                            <TextBlock Text="↔️ 对比列 (X轴,如位移角)" Grid.Row="2" Grid.Column="1" Margin="5,0,0,2" FontSize="11" Foreground="#666"/>
+                            <ComboBox Grid.Row="3" Grid.Column="1" Margin="5,0,0,8"
+                                      ItemsSource="{Binding CompAvailableColumns}" SelectedItem="{Binding CompSelectedXAxis}"
+                                      DisplayMemberPath="Header"/>
+                        </Grid>
+
+                        <Button Content="📊 导出全版本横向对比表" Height="35" Margin="0,0,0,5" 
                                 Background="#F0F7FF" BorderBrush="#2563EB" Command="{Binding ExportComparisonCommand}"/>
                         <Separator Margin="0,5"/>
                     </StackPanel>
-                    <Border DockPanel.Dock="Top" Height="220" Background="#F3F4F6" Margin="5" CornerRadius="4" BorderBrush="#E5E7EB" BorderThickness="1">
-                        <TextBlock Text="[ 趋势图预留位 ]" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="#9CA3AF"/>
+
+                    <Border DockPanel.Dock="Top" Height="250" Background="#F3F4F6" Margin="5" CornerRadius="4" BorderBrush="#E5E7EB" BorderThickness="1">
+                        <lvc:CartesianChart Series="{Binding CompChartSeries}" LegendLocation="Bottom" Margin="10">
+                            <lvc:CartesianChart.AxisX>
+                                <lvc:Axis Title="{Binding CompXAxisTitle}"/>
+                            </lvc:CartesianChart.AxisX>
+                            <lvc:CartesianChart.AxisY>
+                                <lvc:Axis Title="{Binding CompYAxisTitle}"/>
+                            </lvc:CartesianChart.AxisY>
+                        </lvc:CartesianChart>
                     </Border>
-                    <DataGrid Margin="5" IsReadOnly="True" BorderBrush="#EEE" Background="White" ItemsSource="{Binding ComparisonTable}"/>
+                    
+                    
+
+                    <DataGrid Margin="5" IsReadOnly="True" BorderBrush="#EEE" Background="White" 
+                              ItemsSource="{Binding CompDisplayTable}" AutoGenerateColumns="True" />
                 </DockPanel>
             </GroupBox>
         </Grid>

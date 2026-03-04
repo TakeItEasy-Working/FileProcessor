@@ -8,7 +8,8 @@
     ".NETCoreApp,Version=v10.0": {
       "FileProcessor.Engine/1.0.0": {
         "dependencies": {
-          "FileProcessor.Core": "1.0.0"
+          "FileProcessor.Core": "1.0.0",
+          "FileProcessor.DebugHelpers": "1.0.0"
         },
         "runtime": {
           "FileProcessor.Engine.dll": {}
@@ -17,6 +18,14 @@
       "FileProcessor.Core/1.0.0": {
         "runtime": {
           "FileProcessor.Core.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      },
+      "FileProcessor.DebugHelpers/1.0.0": {
+        "runtime": {
+          "FileProcessor.DebugHelpers.dll": {
             "assemblyVersion": "1.0.0.0",
             "fileVersion": "1.0.0.0"
           }
@@ -31,6 +40,11 @@
       "sha512": ""
     },
     "FileProcessor.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "FileProcessor.DebugHelpers/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

@@ -1,4 +1,5 @@
-﻿using FileProcessor.Desktop.ViewModels;
+﻿using FileProcessor.DebugHelpers;
+using FileProcessor.Desktop.ViewModels;
 using FileProcessor.Engine.Runtime;
 using FileProcessor.Infrastructure.Runtime;
 using FileProcessor.Infrastructure.Services;
@@ -17,6 +18,8 @@ namespace FileProcessor.Desktop
         public MainWindow()
         {
             InitializeComponent();
+
+            Log.Debug($"[窗口启动] 文件:{System.DateTime.Now.ToString("f")}");
 
             // 1. 初始化核心底层组件 (这些必须是全程序唯一的实例)
             var loader = new PluginLoader();
